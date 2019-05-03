@@ -5,9 +5,9 @@ Deep Learning project for TU Delft's course CS4180 Deep Learning
 ## Plan
 
 ### Reproduce convolutional network
-* Implement the CNN.
+* Implement the CNN as proposed by **A Deep Learning Approach to Detection of Splicing and Copy-Move Forgeries in Images**.
 * Run on CASIA dataset.
-* Compare performance.
+* Compare it's performance with the one of the original paper.
 
 ### Run the model on the "difficult" dataset(s)
 * Check the performance of the implemented CNN on the "difficult" [dataset](http://www.diid.unipa.it/cvip/?page_id=48#CMFD).
