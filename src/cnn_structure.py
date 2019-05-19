@@ -14,6 +14,10 @@ class Net(nn.Module):
         self.conv1 = nn.Conv2d(in_channels=3, out_channels=30, kernel_size=5, stride=2, padding=0)
         self.relu1 = nn.ReLU()
 
+        # # Convolution 2
+        # self.conv = nn.Conv2d(in_channels=30, out_channels=30, kernel_size=5, stride=2, padding=0)
+        # self.relu = nn.ReLU()
+
         # Max pool 1
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
 
@@ -64,21 +68,20 @@ class Net(nn.Module):
         # softmax
 
     def forward(self, x):
+
         # Convolution 1
         x = self.conv1(x)
         x = self.relu1(x)
 
-        # # resizes the input spatially
-        # x = img.resize((60, 60), x)
+        # # Convolution 2
+        # x = self.conv(x)
+        # x = self.relu(x)
 
         # Max pool 1
         x = self.pool1(x)
 
-        # # resizes the input spatially
-        # x = img.resize((30, 30), x)
-
-        # Dropout for regularization 75%
-        x = self.dropout1(x)
+        # # Dropout for regularization 75%
+        # x = self.dropout1(x)
 
         # Convolution 2
         x = self.conv2(x)
@@ -92,14 +95,11 @@ class Net(nn.Module):
         x = self.conv4(x)
         x = self.relu4(x)
 
-        # # resizes the input spatially
-        # x = img.resize((13, 13), x)
-
         # Max pool 2
         x = self.pool(x)
 
-        # Dropout for regularization 75%
-        x = self.dropout2(x)
+        # # Dropout for regularization 75%
+        # x = self.dropout2(x)
 
         # Convolution 5
         x = self.conv5(x)
@@ -131,4 +131,4 @@ class Net(nn.Module):
 
 net = Net()
 
-print(net.conv1.weight.shape)
+# print(net.conv1.weight.shape)
