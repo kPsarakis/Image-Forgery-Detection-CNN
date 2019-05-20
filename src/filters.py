@@ -54,4 +54,20 @@ def get_filters():
     filters["5x5S"] = torch.Tensor(np.array([[-1, 2, -2, 2, -1], [2, -6, 8, -6, 2], [-2, 8, -12, 8, -2],
                                              [2, -6, 8, -6, 2], [-1, 2, -2, 2, -1]]))
 
-    return filters
+    return vectorize_filters(filters)
+
+
+def vectorize_filters(filters: dict):
+    tensor_list = []
+    W_small = list(filters.values())
+    for i in range(1, 31):
+        tmp = []
+        k = ((i-1) % 10)+1
+        tmp. append(W_small[3*k-3])
+        tmp. append(W_small[3*k-2])
+        tmp.append(W_small[3*k-1])
+        tensor_list.append(torch.stack(tmp))
+
+    stacked_tensor = torch.stack(tensor_list)
+    # [number_of_filters, input_channels, height, width]
+    return stacked_tensor
