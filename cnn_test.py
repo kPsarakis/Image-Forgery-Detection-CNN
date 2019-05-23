@@ -19,11 +19,12 @@ import pickle
 from cnn_implement import SimpleCNN
 
 def testNet():
-	CNN = SimpleCNN()
+	#CNN = SimpleCNN()
 	CNN.load_state_dict(torch.load('/Users/arkajitbhattacharya/Documents/Pytorch_Project/Simple_Cnn.pt'))
 	CNN.eval()
 	correct = 0
 	total = 0
+	test = pickle.load(open("test.pickle","rb"))
 	with torch.no_grad():
 		for data in test:
 			images,labels = data
