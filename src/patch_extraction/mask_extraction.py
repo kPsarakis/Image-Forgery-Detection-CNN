@@ -16,7 +16,8 @@ def delete_prev_images(folder):
             print(e)
 
 
-def extract_masks(sp_pic, Au_pic_dict):
+def find_mask(sp_pic, Au_pic_dict):
+    background_index = [13, 21]
     save_name = sp_pic.split(os.sep)[-1][:-4]
     sp_name = sp_pic.split(os.sep)[-1][background_index[0]:background_index[1]]
     if sp_name in Au_pic_dict.keys():
@@ -35,22 +36,24 @@ def extract_masks(sp_pic, Au_pic_dict):
             cv2.imwrite('masks/' + save_name + '_gt.png', temp)
 
 
-if __name__ == '__main__':
+def extract_masks():
     save_dir = 'masks'
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     else:
         delete_prev_images(save_dir)
 
-    Au_pic_list = glob('..' + os.sep + 'data' + os.sep + 'CASIA2' + os.sep + 'Au' + os.sep + '*')
-    Sp_pic_list = glob('..' + os.sep + 'data' + os.sep + 'CASIA2' + os.sep + 'Tp' + os.sep + '*')
+    Au_pic_list = glob('..' + os.sep + '..' + os.sep + 'data' + os.sep + 'CASIA2' + os.sep + 'Au' + os.sep + '*')
+    Sp_pic_list = glob('..' + os.sep + '..' + os.sep + 'data' + os.sep + 'CASIA2' + os.sep + 'Tp' + os.sep + '*')
     au_index = [3, 6, 7, 12]
-    background_index = [13, 21]
-    foreground_index = [22, 29]
 
     Au_pic_dict = {
         au_pic.split(os.sep)[-1][au_index[0]:au_index[1]] + au_pic.split(os.sep)[-1][au_index[2]:au_index[3]]:
             au_pic for au_pic
         in Au_pic_list}
     for ind, Sp_pic in enumerate(Sp_pic_list):
-        extract_masks(Sp_pic, Au_pic_dict)
+        find_mask(Sp_pic, Au_pic_dict)
+
+
+if __name__ == '__main__':
+    extract_masks()
