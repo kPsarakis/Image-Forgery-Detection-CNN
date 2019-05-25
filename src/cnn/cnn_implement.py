@@ -26,7 +26,7 @@ train,test = train_test_split(dataset,test_size = 0.2, random_state = 0)
 pickle_out = open("test.pickle","wb")
 pickle.dump(test,pickle_out)
 pickle_out.close()
-
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class SimpleCNN(nn.Module):
 
@@ -35,7 +35,7 @@ class SimpleCNN(nn.Module):
 
 		#Input channels 3 output channels 30
 		self.conv1 = nn.Conv2d( 3, 30, kernel_size = 5, stride = 1, padding = 0 )
-		#self.conv1.weight = nn.Parameter(filters.get_filters())
+		self.conv1.weight = nn.Parameter(filters.get_filters())
 		self.conv2 = nn.Conv2d( 30, 30, kernel_size = 5, stride = 2, padding = 0 )
 		self.pool1 = nn.MaxPool2d(kernel_size = 2, stride = 2, padding = 0)
 		self.conv3 = nn.Conv2d( 30, 16, kernel_size = 3, stride = 1, padding = 0 )
@@ -53,32 +53,20 @@ class SimpleCNN(nn.Module):
 	def forward(self,x):
 		#print("x", x.size())
 		x = x.unsqueeze(0)
-		print("x-initial", x.size())
-		x = F.relu(nn.init.xavier_uniform(self.conv1(x)))
-		print("x-2", x.size())
+		x = F.relu(self.conv1(x))
 		x = F.relu(nn.init.xavier_uniform(self.conv2(x)))
-		print("x-3", x.size())
 		lrn = nn.LocalResponseNorm(2)
 		x = lrn(x)
-		print("x-n", x)
 		x = self.pool1(x)
-		print("x-4", x.size())
 		x = F.relu(nn.init.xavier_uniform(self.conv3(x)))
-		print("x-5", x.size())
 		x = F.relu(nn.init.xavier_uniform(self.conv4(x)))
-		print("x-6", x.size())
 		x = F.relu(nn.init.xavier_uniform(self.conv5(x)))
-		print("x-7", x.size())
 		x = F.relu(nn.init.xavier_uniform(self.conv6(x)))
-		print("x-8", x.size())
 		x = lrn(x)
 		x = self.pool2(x)
-		print("x-9", x.size())
 		x = F.relu(nn.init.xavier_uniform(self.conv7(x)))
-		print("x-10", x.size())
 		x = F.relu(nn.init.xavier_uniform(self.conv8(x)))
 		x = F.relu(nn.init.xavier_uniform(self.conv9(x)))
-		print("x-final",x.size())
 		x = x.view(-1, 16*5*5) #(16*22*22)
 		x = F.relu(self.fc1(x))
 		x = self.drop1(x)
@@ -92,9 +80,9 @@ def outputSize(in_size, kernel_size, stride, padding):
 
 	return output
 
-def createLossandOptimizer(net, learning_rate = 0.001):
+def createLossandOptimizer(net, learning_rate = 0.01):
 		loss = nn.CrossEntropyLoss()
-		optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+		optimizer = optim.SGD(net.parameters(), lr=0.01, momentum=0.99)
 		return(loss,optimizer)
 def trainNet(net, n_epochs, learning_rate):
 
@@ -114,8 +102,9 @@ def trainNet(net, n_epochs, learning_rate):
 		total_train_loss = 0.0
 		for i,data in enumerate(train,0):
 			inputs,labels = data
+			#inputs,labels = inputs.to(device),labels.to(device)
+			# Backprop and perform Adam optimisation
 			optimizer.zero_grad()
-
 			outputs = net(inputs)
 			labels = [labels]
 			labels = torch.from_numpy(np.array(labels))
@@ -132,8 +121,12 @@ def trainNet(net, n_epochs, learning_rate):
 
 	print('Finished Training')
 
-CNN = SimpleCNN()
-trainNet(CNN, n_epochs = 1, learning_rate = 0.001)
+if(device == "cuda:0"):
+	CNN = SimpleCNN().cuda()
+else:
+	CNN = SimpleCNN()
+trainNet(CNN, n_epochs = 1, learning_rate = 0.01)
 
 torch.save(CNN.state_dict(),'/Users/arkajitbhattacharya/Documents/Pytorch_Project/Simple_Cnn.pt')
+
 
