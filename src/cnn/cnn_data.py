@@ -13,11 +13,10 @@ import pickle
 #Crop image based on the image size
 IMG_SIZE = (128,128)
 #Image folder with fake and real image subfolders
-DATADIR = "/Users/arkajitbhattacharya/Documents/Pytorch_Project/casia-dataset/CASIA1";
+DATADIR = "/Users/arkajitbhattacharya/Documents/Pytorch_Project/casia-dataset/CASIA2";
 
-CATEGORIES = ["Au","Sp"]
 #Transform variable for tensor
-transform = transforms.Compose([transforms.RandomSizedCrop(max(IMG_SIZE)), transforms.ToTensor()])
+transform = transforms.Compose([transforms.ToTensor()])
 
 #Fetch data
 dataset = datasets.ImageFolder(root = DATADIR, transform = transform)
@@ -26,6 +25,5 @@ dataset = datasets.ImageFolder(root = DATADIR, transform = transform)
 pickle_out = open("dataset.pickle","wb")
 pickle.dump(dataset,pickle_out)
 pickle_out.close()
-#Divide the data to train and test set(20% of data for test)
-#train,test = train_test_split(trainset,test_size = 0.2, random_state = 0)
+
 
