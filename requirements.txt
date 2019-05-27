@@ -1,3 +1,4 @@
+torch
 cycler==0.10.0
 graphviz==0.10.1
 imbalanced-learn==0.4.3
