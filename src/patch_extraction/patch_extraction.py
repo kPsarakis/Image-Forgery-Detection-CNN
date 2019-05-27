@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 import functools
 from glob import glob
-import numpy as np
 from skimage import io
 from skimage.util import view_as_windows
 import os
 import cv2
 import matplotlib.pyplot as plt
-
+import numpy as np
 from src.patch_extraction.mask_extraction import extract_masks
 
-Au_pic_list = glob('..' + os.sep + '..' + os.sep + 'data' + os.sep + 'CASIA2' + os.sep + 'Au' + os.sep + '*')
-au_index = [3, 6, 7, 12]
+# define the indices of the image names and read the authentic images
 background_index = [13, 21]
+au_index = [3, 6, 7, 12]
+Au_pic_list = glob('..' + os.sep + '..' + os.sep + 'data' + os.sep + 'CASIA2' + os.sep + 'Au' + os.sep + '*')
 Au_pic_dict = {
     au_pic.split(os.sep)[-1][au_index[0]:au_index[1]] + au_pic.split(os.sep)[-1][au_index[2]:au_index[3]]:
         au_pic for au_pic
@@ -20,16 +20,30 @@ Au_pic_dict = {
 
 
 class PatchExtractor:
+    '''
+    Patch extraction class
+    '''
+
     def __init__(self, patches_per_image=4, rotations=8, stride=8):
+        '''
+        Initialize class
+        :param patches_per_image: Number of samples to extract for each image
+        :param rotations: Number of rotations to perform
+        :param stride: Stride size to be used
+        '''
         self.patches_per_image = patches_per_image
         self.stride = stride
         rots = [0, 90, 180, 270, 45, 135, 225, 315]
         self.rotations = rots[:rotations]
 
     @staticmethod
-    def delete_prev_images(folder):
-        for the_file in os.listdir(folder):
-            file_path = os.path.join(folder, the_file)
+    def delete_prev_images(dir):
+        '''
+        Deletes all the file in a directory.
+        :param dir: Directory name
+        '''
+        for the_file in os.listdir(dir):
+            file_path = os.path.join(dir, the_file)
             try:
                 if os.path.isfile(file_path):
                     os.unlink(file_path)
@@ -38,15 +52,18 @@ class PatchExtractor:
 
     @staticmethod
     def rotate_image(mat, angle):
-        """
+        '''
         Rotates an image (angle in degrees) and expands image to avoid cropping
-        """
+        :param mat: Matrix representation of image
+        :param angle: Angle of rotation
+        :return: Matrix representation of rotated image
+        '''
 
         height, width = mat.shape[:2]  # image shape has 3 dimensions
         image_center = (
             width / 2,
-            height / 2)  # getRotationMatrix2D needs coordinates in reverse order (width, height) compared to shape
-
+            height / 2)
+        # getRotationMatrix2D needs coordinates in reverse order (width, height) compared to shape
         rotation_mat = cv2.getRotationMatrix2D(image_center, angle, 1.)
 
         # rotation calculates the cos and sin, taking absolutes of those.
@@ -67,29 +84,55 @@ class PatchExtractor:
 
     @staticmethod
     def compare_tampered(item1, item2):
+        '''
+        Finds the number of different pixels (0 and 1). Used for sorting.
+        :param item1: Tuple with the first image and its mask
+        :param item2: Tuple with the second image and its mask
+        :return: Number of different pixels
+        '''
+
+        # get the masks
         mask1 = item1[1]
         mask2 = item2[1]
+        # get the number of zeros and ones for the two images
         num_zeros_1 = (mask1 == 0).sum()
         num_zeros_2 = (mask2 == 0).sum()
         num_ones_1 = (mask1 == 255).sum()
         num_ones_2 = (mask2 == 255).sum()
+        # get the two differences
         diff_1 = abs(num_ones_1 - num_zeros_1)
         diff_2 = abs(num_ones_2 - num_zeros_2)
         return diff_1 - diff_2
 
     def get_best_patches(self, tampered, num_of_patches):
-        tampered_patches = sorted(tampered, key=functools.cmp_to_key(self.compare_tampered))[:num_of_patches]
-        return tampered_patches
+        '''
+        Get the best 'num_of_patches' patches.
+        :param tampered: Tuple with the tampered image and its mask
+        :param num_of_patches: Number of patches to be extracted
+        :return:
+        '''
+        # tampered_patches = sorted(tampered, key=functools.cmp_to_key(self.compare_tampered))[:num_of_patches]
+        inds = np.random.choice(len(tampered), num_of_patches, replace=False)
+        return [tampered[0][i] for i in inds]
 
     def extract_authentic_patches(self, sp_pic, num_of_patches, rep_num):
+        '''
+        Extracts and saves the patches from the authentic image
+        :param sp_pic: Name of tampered image
+        :param num_of_patches: Number of patches to be extracted
+        :param rep_num: Number of repetitions being done(just for the patch name)
+        '''
         sp_name = sp_pic.split('/')[-1][background_index[0]:background_index[1]]
         if sp_name in Au_pic_dict.keys():
             au_name = Au_pic_dict[sp_name].split(os.sep)[-1].split('.')[0]
+            # define window size
             window_shape = (128, 128, 3)
             au_pic = Au_pic_dict[sp_name]
             au_image = plt.imread(au_pic)
+            # extract all patches
             non_tampered_patches = view_as_windows(au_image, window_shape, step=self.stride)
             non_tampered_patches = [im[0][0] for im in non_tampered_patches]
+            # select random some patches, rotate and save them
             inds = np.random.choice(len(non_tampered_patches), num_of_patches, replace=False)
             for i, ind in enumerate(inds):
                 for angle in self.rotations:
@@ -97,6 +140,11 @@ class PatchExtractor:
                     io.imsave('patches/authentic/{0}_{1}_{2}_{3}.png'.format(au_name, i, angle, rep_num), img_rt)
 
     def extract_patches(self):
+        '''
+        Main function which extracts all patches
+        :return:
+        '''
+        # uncomment to extract masks
         # mask_path = 'masks'
         # if os.path.exists(mask_path) and os.path.isdir(mask_path):
         #     if not os.listdir(mask_path):
@@ -111,6 +159,7 @@ class PatchExtractor:
         #     extract_masks()
         #     print("Masks extracted")
 
+        # create necessary directories
         if not os.path.exists('patches'):
             os.makedirs('patches')
             os.makedirs('patches/authentic')
@@ -124,28 +173,34 @@ class PatchExtractor:
                 self.delete_prev_images('patches/tampered')
             else:
                 os.makedirs('patches/tampered')
-
+        # define window shape
         window_shape = (128, 128, 3)
         tp_dir = '../../data/CASIA2/Tp/'
         rep_num = 0
+        # run for all the tampered images
         for f in os.listdir(tp_dir):
             try:
                 rep_num += 1
                 image = io.imread(tp_dir + f)
                 im_name = f.split(os.sep)[-1].split('.')[0]
+                # read mask
                 mask = io.imread('masks/' + im_name + '_gt.png')
+                # extract patches from iamges and masks
                 patches = view_as_windows(image, window_shape, step=self.stride)
                 mask_patches = view_as_windows(mask, window_shape, step=self.stride)
                 tampered_patches = []
+                # find tampered patches
                 for im, ma in zip(patches, mask_patches):
                     num_zeros = (ma == 0).sum()
                     num_ones = (ma == 255).sum()
                     total = num_ones + num_zeros
                     if num_zeros <= 0.99 * total:
                         tampered_patches += [(im[0][0], ma)]
+                # if patches are less than the given number then take the minimum possible
                 num_of_patches = self.patches_per_image
                 if len(tampered_patches) < num_of_patches:
                     num_of_patches = len(tampered_patches)
+                # select the best patches, rotate and save them
                 tampered_patches = self.get_best_patches(tampered_patches, num_of_patches)
                 for i, tampered in enumerate(tampered_patches):
                     for angle in self.rotations:
@@ -159,6 +214,5 @@ class PatchExtractor:
 
 
 if __name__ == '__main__':
-    # pe = PatchExtractor(patches_per_image=4, rotations=8, stride=8)
     pe = PatchExtractor()
     pe.extract_patches()
