@@ -83,6 +83,7 @@ def trainNet(net, train_set, n_epochs, learning_rate):
 		# total_train_loss = 0.0
 		print('Epoch: ', epoch)
 		print(scheduler.get_lr())
+		scheduler.step()
 		for i, data in enumerate(train_set, 0):
 			inputs,labels = data
 			# Backprop and perform Adam optimisation
@@ -92,7 +93,7 @@ def trainNet(net, train_set, n_epochs, learning_rate):
 			labels = torch.from_numpy(np.array(labels))
 			loss_size = loss(outputs, labels)
 			loss_size.backward()
-			scheduler.step()
+			optimizer.step()
 
 			# Print statistics
 			running_loss += loss_size.item()
