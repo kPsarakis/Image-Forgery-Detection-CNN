@@ -6,18 +6,8 @@ import torch.optim as optim
 from sklearn.model_selection import train_test_split
 # import time
 import pickle
+from torch.optim.lr_scheduler import StepLR
 from src import filters
-
-
-dataset = pickle.load(open("dataset.pickle", "rb"))
-# TODO: stratified train test split
-train, test = train_test_split(dataset,test_size=0.2, random_state=0)
-
-pickle_out = open("test.pickle", "wb")
-pickle.dump(test, pickle_out)
-pickle_out.close()
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
 
 class SimpleCNN(nn.Module):
 
@@ -44,41 +34,39 @@ class SimpleCNN(nn.Module):
 	def forward(self,x):
 		x = x.unsqueeze(0)
 		x = F.relu(self.conv1(x))
-		x = F.relu(nn.init.xavier_uniform(self.conv2(x)))
+		x = F.relu(nn.init.xavier_uniform_(self.conv2(x)))
 		lrn = nn.LocalResponseNorm(2)
 		x = lrn(x)
 		x = self.pool1(x)
-		x = F.relu(nn.init.xavier_uniform(self.conv3(x)))
-		x = F.relu(nn.init.xavier_uniform(self.conv4(x)))
-		x = F.relu(nn.init.xavier_uniform(self.conv5(x)))
-		x = F.relu(nn.init.xavier_uniform(self.conv6(x)))
+		x = F.relu(nn.init.xavier_uniform_(self.conv3(x)))
+		x = F.relu(nn.init.xavier_uniform_(self.conv4(x)))
+		x = F.relu(nn.init.xavier_uniform_(self.conv5(x)))
+		x = F.relu(nn.init.xavier_uniform_(self.conv6(x)))
 		x = lrn(x)
 		x = self.pool2(x)
-		x = F.relu(nn.init.xavier_uniform(self.conv7(x)))
-		x = F.relu(nn.init.xavier_uniform(self.conv8(x)))
-		x = F.relu(nn.init.xavier_uniform(self.conv9(x)))
+		x = F.relu(nn.init.xavier_uniform_(self.conv7(x)))
+		x = F.relu(nn.init.xavier_uniform_(self.conv8(x)))
+		x = F.relu(nn.init.xavier_uniform_(self.conv9(x)))
 		x = x.view(-1, 16*5*5)
 		x = F.relu(self.fc1(x))
 		x = self.drop1(x)
 		x = self.fc2(x)
-		
 		return(x)
 
 
 def outputSize(in_size, kernel_size, stride, padding):
-
 	output = int((in_size-kernel_size+2*(padding))/stride) + 1
-
 	return output
 
 
 def createLossandOptimizer(net, learning_rate=0.01):
-		loss = nn.CrossEntropyLoss()
-		optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.99)
-		return loss, optimizer
+	# TODO: implement early stopping
+	loss = nn.CrossEntropyLoss()
+	optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.99, weight_decay=5*1e-4)
+	return loss, optimizer
 
 
-def trainNet(net, n_epochs, learning_rate):
+def trainNet(net, train_set, n_epochs, learning_rate):
 
 	print("===Hyperparameters===")
 	print("epochs=", n_epochs)
@@ -86,35 +74,50 @@ def trainNet(net, n_epochs, learning_rate):
 
 	loss, optimizer = createLossandOptimizer(net, learning_rate)
 	# training_start_time = time.time()
+	scheduler = StepLR(optimizer, step_size=10, gamma=0.9)
 
 	for epoch in range(n_epochs):
 
 		running_loss = 0.0
 		# start_time = time.time()
 		# total_train_loss = 0.0
-		for i,data in enumerate(train,0):
+		print('Epoch: ', epoch)
+		print(scheduler.get_lr())
+		for i, data in enumerate(train_set, 0):
 			inputs,labels = data
 			# Backprop and perform Adam optimisation
 			optimizer.zero_grad()
 			outputs = net(inputs)
 			labels = [labels]
 			labels = torch.from_numpy(np.array(labels))
-			loss_size = loss(outputs,labels)
+			loss_size = loss(outputs, labels)
 			loss_size.backward()
-			optimizer.step()
+			scheduler.step()
 
 			# Print statistics
 			running_loss += loss_size.item()
 			if i % 2000 == 1999:    # print every 2000 mini-batches
-				print('[%d, %5d] loss: %.3f' %(epoch + 1, i + 1, running_loss / 2000))
+				print('[%d, %5d] loss: %.3f' % (epoch + 1, i + 1, running_loss / 2000))
 				running_loss = 0.0
 
 	print('Finished Training')
 
 
-if device == "cuda:0":
-	CNN = SimpleCNN().cuda()
-else:
-	CNN = SimpleCNN()
-trainNet(CNN, n_epochs=1, learning_rate=0.01)
-torch.save(CNN.state_dict(), 'Simple_Cnn.pt')
+def main():
+	dataset = pickle.load(open("dataset.pickle", "rb"))
+	# TODO: stratified train test split
+	train, test = train_test_split(dataset, test_size=0.2, random_state=0)
+	pickle_out = open("test.pickle", "wb")
+	pickle.dump(test, pickle_out)
+	pickle_out.close()
+	device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+	if device == "cuda:0":
+		CNN = SimpleCNN().cuda()
+	else:
+		CNN = SimpleCNN()
+	trainNet(CNN, train, n_epochs=250, learning_rate=0.01)
+	torch.save(CNN.state_dict(), 'Simple_Cnn.pt')
+
+
+if __name__ == "__main__":
+	main()

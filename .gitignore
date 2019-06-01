@@ -1,2 +1,5 @@
 .idea/*
 src/patch_extraction/__init__.py
+src/__pycache__/
+src/cnn/*.pickle
+src/cnn/*.pt
