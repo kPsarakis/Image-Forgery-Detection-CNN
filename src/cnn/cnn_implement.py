@@ -4,18 +4,20 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from sklearn.model_selection import train_test_split
-import time
+# import time
 import pickle
 from src import filters
 
 
 dataset = pickle.load(open("dataset.pickle", "rb"))
+# TODO: stratified train test split
 train, test = train_test_split(dataset,test_size=0.2, random_state=0)
 
 pickle_out = open("test.pickle", "wb")
 pickle.dump(test, pickle_out)
 pickle_out.close()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
 
 class SimpleCNN(nn.Module):
 
@@ -62,31 +64,34 @@ class SimpleCNN(nn.Module):
 		
 		return(x)
 
+
 def outputSize(in_size, kernel_size, stride, padding):
 
 	output = int((in_size-kernel_size+2*(padding))/stride) + 1
 
 	return output
 
-def createLossandOptimizer(net, learning_rate = 0.01):
+
+def createLossandOptimizer(net, learning_rate=0.01):
 		loss = nn.CrossEntropyLoss()
-		optimizer = optim.SGD(net.parameters(), lr=0.01, momentum=0.99)
-		return(loss,optimizer)
+		optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.99)
+		return loss, optimizer
+
+
 def trainNet(net, n_epochs, learning_rate):
 
 	print("===Hyperparameters===")
 	print("epochs=", n_epochs)
 	print("learning_rate=", learning_rate)
-	
 
-	loss,optimizer = createLossandOptimizer(net, learning_rate)
-	training_start_time = time.time()
+	loss, optimizer = createLossandOptimizer(net, learning_rate)
+	# training_start_time = time.time()
 
 	for epoch in range(n_epochs):
 
 		running_loss = 0.0
-		start_time = time.time()
-		total_train_loss = 0.0
+		# start_time = time.time()
+		# total_train_loss = 0.0
 		for i,data in enumerate(train,0):
 			inputs,labels = data
 			# Backprop and perform Adam optimisation
@@ -98,21 +103,18 @@ def trainNet(net, n_epochs, learning_rate):
 			loss_size.backward()
 			optimizer.step()
 
-			#Print statistics
+			# Print statistics
 			running_loss += loss_size.item()
 			if i % 2000 == 1999:    # print every 2000 mini-batches
-				print('[%d, %5d] loss: %.3f' %
-				   (epoch + 1, i + 1, running_loss / 2000))
+				print('[%d, %5d] loss: %.3f' %(epoch + 1, i + 1, running_loss / 2000))
 				running_loss = 0.0
 
 	print('Finished Training')
 
-if(device == "cuda:0"):
+
+if device == "cuda:0":
 	CNN = SimpleCNN().cuda()
 else:
 	CNN = SimpleCNN()
-trainNet(CNN, n_epochs = 1, learning_rate = 0.01)
-
+trainNet(CNN, n_epochs=1, learning_rate=0.01)
 torch.save(CNN.state_dict(), 'Simple_Cnn.pt')
-
-
