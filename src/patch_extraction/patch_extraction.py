@@ -7,7 +7,10 @@ import os
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-from src.patch_extraction.mask_extraction import extract_masks
+import warnings
+
+warnings.filterwarnings('ignore')
+# from src.patch_extraction.mask_extraction import extract_masks
 
 # define the indices of the image names and read the authentic images
 background_index = [13, 21]
@@ -51,6 +54,16 @@ class PatchExtractor:
                 print(e)
 
     @staticmethod
+    def check_and_reshape(image, mask):
+        if image.shape == mask.shape:
+            return image, mask
+        elif image.shape[0] == mask.shape[1] and image.shape[1] == mask.shape[0]:
+            mask = np.reshape(mask, (image.shape[0], image.shape[1], mask.shape[2]))
+            return image, mask
+        else:
+            return image, mask
+
+    @staticmethod
     def rotate_image(mat, angle):
         '''
         Rotates an image (angle in degrees) and expands image to avoid cropping
@@ -58,7 +71,6 @@ class PatchExtractor:
         :param angle: Angle of rotation
         :return: Matrix representation of rotated image
         '''
-
         height, width = mat.shape[:2]  # image shape has 3 dimensions
         image_center = (
             width / 2,
@@ -82,39 +94,6 @@ class PatchExtractor:
         rotated_mat = cv2.warpAffine(mat, rotation_mat, (bound_w, bound_h))
         return rotated_mat
 
-    @staticmethod
-    def compare_tampered(item1, item2):
-        '''
-        Finds the number of different pixels (0 and 1). Used for sorting.
-        :param item1: Tuple with the first image and its mask
-        :param item2: Tuple with the second image and its mask
-        :return: Number of different pixels
-        '''
-
-        # get the masks
-        mask1 = item1[1]
-        mask2 = item2[1]
-        # get the number of zeros and ones for the two images
-        num_zeros_1 = (mask1 == 0).sum()
-        num_zeros_2 = (mask2 == 0).sum()
-        num_ones_1 = (mask1 == 255).sum()
-        num_ones_2 = (mask2 == 255).sum()
-        # get the two differences
-        diff_1 = abs(num_ones_1 - num_zeros_1)
-        diff_2 = abs(num_ones_2 - num_zeros_2)
-        return diff_1 - diff_2
-
-    def get_best_patches(self, tampered, num_of_patches):
-        '''
-        Get the best 'num_of_patches' patches.
-        :param tampered: Tuple with the tampered image and its mask
-        :param num_of_patches: Number of patches to be extracted
-        :return:
-        '''
-        # tampered_patches = sorted(tampered, key=functools.cmp_to_key(self.compare_tampered))[:num_of_patches]
-        inds = np.random.choice(len(tampered), num_of_patches, replace=False)
-        return [tampered[0][i] for i in inds]
-
     def extract_authentic_patches(self, sp_pic, num_of_patches, rep_num):
         '''
         Extracts and saves the patches from the authentic image
@@ -130,8 +109,11 @@ class PatchExtractor:
             au_pic = Au_pic_dict[sp_name]
             au_image = plt.imread(au_pic)
             # extract all patches
-            non_tampered_patches = view_as_windows(au_image, window_shape, step=self.stride)
-            non_tampered_patches = [im[0][0] for im in non_tampered_patches]
+            non_tampered_windows = view_as_windows(au_image, window_shape, step=self.stride)
+            non_tampered_patches = []
+            for m in range(non_tampered_windows.shape[0]):
+                for n in range(non_tampered_windows.shape[1]):
+                    non_tampered_patches += [non_tampered_windows[m][n][0]]
             # select random some patches, rotate and save them
             inds = np.random.choice(len(non_tampered_patches), num_of_patches, replace=False)
             for i, ind in enumerate(inds):
@@ -185,34 +167,44 @@ class PatchExtractor:
                 im_name = f.split(os.sep)[-1].split('.')[0]
                 # read mask
                 mask = io.imread('masks/' + im_name + '_gt.png')
+                image, mask = self.check_and_reshape(image, mask)
+
                 # extract patches from iamges and masks
                 patches = view_as_windows(image, window_shape, step=self.stride)
                 mask_patches = view_as_windows(mask, window_shape, step=self.stride)
                 tampered_patches = []
                 # find tampered patches
-                for im, ma in zip(patches, mask_patches):
-                    num_zeros = (ma == 0).sum()
-                    num_ones = (ma == 255).sum()
-                    total = num_ones + num_zeros
-                    if num_zeros <= 0.99 * total:
-                        tampered_patches += [(im[0][0], ma)]
+                for m in range(patches.shape[0]):
+                    for n in range(patches.shape[1]):
+                        im = patches[m][n][0]
+                        ma = mask_patches[m][n][0]
+                        num_zeros = (ma == 0).sum()
+                        num_ones = (ma == 255).sum()
+                        total = num_ones + num_zeros
+                        if num_zeros <= 0.99 * total:
+                            tampered_patches += [(im, ma)]
                 # if patches are less than the given number then take the minimum possible
                 num_of_patches = self.patches_per_image
                 if len(tampered_patches) < num_of_patches:
+                    print("Number of tampered patches for image {} are only {}".format(f, len(tampered_patches)))
                     num_of_patches = len(tampered_patches)
                 # select the best patches, rotate and save them
-                tampered_patches = self.get_best_patches(tampered_patches, num_of_patches)
-                for i, tampered in enumerate(tampered_patches):
+                inds = np.random.choice(len(tampered_patches), num_of_patches, replace=False)
+                for i, ind in enumerate(inds):
                     for angle in self.rotations:
-                        img_rt = self.rotate_image(tampered[0], angle)
+                        img_rt = self.rotate_image(tampered_patches[ind][0], angle)
                         io.imsave('patches/tampered/{0}_{1}_{2}_{3}.png'.format(im_name, i, angle, rep_num), img_rt)
                 self.extract_authentic_patches(tp_dir + f, num_of_patches, rep_num)
-            except IOError as ioe:
+            except IOError as e:
                 rep_num -= 1
-                print(ioe.message)
+                print(str(e))
+                pass
+            except IndexError as ie:
+                rep_num -= 1
+                print('Mask and image have not the same dimensions')
                 pass
 
 
 if __name__ == '__main__':
-    pe = PatchExtractor()
+    pe = PatchExtractor(patches_per_image=2, stride=32)
     pe.extract_patches()
