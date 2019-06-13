@@ -3,3 +3,7 @@ src/patch_extraction/__init__.py
 src/__pycache__/
 src/cnn/*.pickle
 src/cnn/*.pt
+src/feature_fusion/__pycache__/__init__.cpython-37.pyc
+src/cnn/__pycache__/cnn_test.cpython-37.pyc
+src/cnn/__pycache__/cnn_implement.cpython-37.pyc
+*.pyc

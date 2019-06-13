@@ -1,7 +1,6 @@
 import numpy as np
 import torch
-import pickle
-from cnn_implement import SimpleCNN
+from cnn.cnn_implement import SimpleCNN
 
 
 def testNet():
@@ -10,7 +9,7 @@ def testNet():
 	CNN.eval()
 	correct = 0
 	total = 0
-	test = pickle.load(open("test.pickle", "rb"))
+	test = torch.load(open("test.pickle", "rb"))
 	with torch.no_grad():
 		for data in test:
 			images, labels = data
@@ -25,4 +24,5 @@ def testNet():
 	print('Accuracy : ', (100*correct)/total)
 
 
-testNet()
+def dummy_test():
+	return torch.from_numpy(np.random.randn(5, 5, 16))

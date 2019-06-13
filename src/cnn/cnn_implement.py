@@ -9,6 +9,7 @@ import pickle
 from torch.optim.lr_scheduler import StepLR
 from src import filters
 
+
 class SimpleCNN(nn.Module):
 
 	def __init__(self):
