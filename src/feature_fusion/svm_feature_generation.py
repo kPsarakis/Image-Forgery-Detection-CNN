@@ -9,7 +9,7 @@ from src.feature_fusion.feature_extraction import get_images_and_labels, get_pat
 
 def create_SVM_features(model):
     # for every image (RAFAIL)
-    # images = get_images_and_labels()
+    #
     # for image_name in images.keys():
     #     # get name and label (RAFAIL)
     #     image = images[image_name]['mat']
@@ -25,13 +25,18 @@ def create_SVM_features(model):
         #Yi = get_Yi(model=model, patch=patch)  # call CNN -> Yi (KYRIAKOS)
 
     df = pd.DataFrame()
+    images = get_images_and_labels()
 
-    for _ in range(2):
+    for image_name in images.keys():  # images
 
+        image = images[image_name]['mat']
+        label = images[image_name]['label']
         Y = []  # init Y (KYRIAKOS)
 
-        for _ in range(3):
-            Yi = get_dummy_Yi()  # call CNN -> Yi (KYRIAKOS)
+        patches = get_patches(image, stride=128)
+
+        for patch in patches:
+            Yi = get_dummy_Yi()  # call CNN -> Yi with the patch (KYRIAKOS)
             Y.append(Yi)  # append Yi to Y (KYRIAKOS)
 
         Y = np.vstack(tuple(Y))
