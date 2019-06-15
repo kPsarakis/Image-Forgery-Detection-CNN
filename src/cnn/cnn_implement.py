@@ -6,7 +6,7 @@ import torch.optim as optim
 from sklearn.model_selection import train_test_split
 import pickle
 from torch.optim.lr_scheduler import StepLR
-from src import filters
+#from src import filters
 
 
 class SimpleCNN(nn.Module):
@@ -79,6 +79,7 @@ def trainNet(net, train_set, n_epochs, learning_rate):
 		for i, data in enumerate(train_set, 0):
 			# get the inputs
 			inputs, labels = data
+			labels = torch.LongTensor([labels])
 			if torch.cuda.is_available():
 				inputs = inputs.cuda()
 				labels = labels.cuda()
@@ -86,8 +87,6 @@ def trainNet(net, train_set, n_epochs, learning_rate):
 			optimizer.zero_grad()
 			# forward + backward + optimize
 			outputs = net(inputs)
-			labels = [labels]
-			labels = torch.from_numpy(np.array(labels))
 			loss_size = loss(outputs, labels)
 			loss_size.backward()
 			# TODO: check why on the 10th epoch it multiplies with an extra 0.9
@@ -104,16 +103,18 @@ def trainNet(net, train_set, n_epochs, learning_rate):
 
 def main():
 	dataset = pickle.load(open("dataset.pickle", "rb"))
-	train, test = train_test_split(dataset, test_size=0.2, random_state=0, stratify=dataset.targets)
-	pickle_out = open("test.pickle", "wb")
-	pickle.dump(test, pickle_out)
-	pickle_out.close()
+	#train, test = train_test_split(dataset, test_size=0.2, random_state=0, stratify=dataset.targets)
+	#pickle_out = open("test.pickle", "wb")
+	#pickle.dump(test, pickle_out)
+	#pickle_out.close()
 	device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-	if device == "cuda:0":
+	if str(device) == "cuda:0":
+		print("cuda enabled")
 		CNN = SimpleCNN().cuda()
 	else:
+		print("no cuda")
 		CNN = SimpleCNN()
-	trainNet(CNN, train, n_epochs=250, learning_rate=0.01)
+	trainNet(CNN, dataset, n_epochs=250, learning_rate=0.01)
 	torch.save(CNN.state_dict(), 'Simple_Cnn.pt')
 
 
