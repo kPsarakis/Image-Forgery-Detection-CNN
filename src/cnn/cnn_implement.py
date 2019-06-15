@@ -32,7 +32,7 @@ class SimpleCNN(nn.Module):
 		self.fc2 = nn.Linear(1000, 2)
 		
 	def forward(self,x):
-		x = x.unsqueeze(0)
+		# x = x.unsqueeze(0)
 		# x = F.relu(self.conv1(x)) - used with SRM filters
 		x = F.relu(nn.init.xavier_uniform_(self.conv1(x)))
 		x = F.relu(nn.init.xavier_uniform_(self.conv2(x)))
@@ -68,6 +68,7 @@ def createLossandOptimizer(net, learning_rate=0.01):
 
 
 def trainNet(net, train_set, n_epochs, learning_rate):
+	train_loader = torch.utils.data.DataLoader(train_set, batch_size=32, num_workers=4)
 	loss, optimizer = createLossandOptimizer(net, learning_rate)
 	scheduler = StepLR(optimizer, step_size=10*len(train_set), gamma=0.9)
 	for epoch in range(n_epochs):
@@ -76,10 +77,10 @@ def trainNet(net, train_set, n_epochs, learning_rate):
 		print(scheduler.get_lr())
 		print(optimizer)
 		# loop over the training samples
-		for i, data in enumerate(train_set, 0):
+		for i, data in enumerate(train_loader, 0):
 			# get the inputs
 			inputs, labels = data
-			labels = torch.LongTensor([labels])
+			labels = torch.LongTensor(labels)
 			if torch.cuda.is_available():
 				inputs = inputs.cuda()
 				labels = labels.cuda()
@@ -94,7 +95,7 @@ def trainNet(net, train_set, n_epochs, learning_rate):
 			# optimizer.step()
 			# Print statistics
 			running_loss += loss_size.item()
-			if i % 2000 == 1999:  # print every 2000 mini-batches
+			if i % 10 == 9:  # print every 2000 mini-batches
 				print('[%d, %5d] loss: %.3f' % (epoch + 1, i + 1, running_loss / 2000))
 				running_loss = 0.0
 
