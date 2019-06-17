@@ -67,9 +67,9 @@ def createLossandOptimizer(net, learning_rate=0.01):
 
 
 def trainNet(net, train_set, n_epochs, learning_rate):
-	train_loader = torch.utils.data.DataLoader(train_set, batch_size=64, num_workers=4)
+	train_loader = torch.utils.data.DataLoader(train_set, batch_size=32, num_workers=4, pin_memory=True)
 	loss, optimizer = createLossandOptimizer(net, learning_rate)
-	scheduler = StepLR(optimizer, step_size=10*len(train_set), gamma=0.9)
+	scheduler = StepLR(optimizer, step_size=10, gamma=0.9)
 	for epoch in range(n_epochs):
 		running_loss = 0.0
 		print('Epoch: ', epoch + 1)
@@ -90,20 +90,21 @@ def trainNet(net, train_set, n_epochs, learning_rate):
 			loss_size = loss(outputs, labels)
 			loss_size.backward()
 			# TODO: check why on the 10th epoch it multiplies with an extra 0.9
-			scheduler.step()
-			# optimizer.step()
+			optimizer.step()
 			# Print statistics
 			running_loss += loss_size.item()
-			if i % 10 == 9:  # print every 2000 mini-batches
-				print('[%d, %5d] loss: %.3f' % (epoch + 1, i + 1, running_loss / 2000))
-				running_loss = 0.0
+			# if i % 10 == 9:  # print every 2000 mini-batches
+			# 	print('[%d, %5d] loss: %.3f' % (epoch + 1, i + 1, running_loss / 2000))
+			# 	running_loss = 0.0
+		print('Epoch %d Lo ss: %.3f' % (epoch + 1, running_loss))
+		scheduler.step()
 
 	print('Finished Training')
 
 
 def main():
 	#Image folder with fake and real image subfolders
-	DATADIR = "../../data/CASIA1";
+	DATADIR = "../../data/CASIA1"
 	transform = transforms.Compose(transforms.ToTensor())
 	#Fetch data
 	dataset = datasets.ImageFolder(root=DATADIR, transform=transform)
