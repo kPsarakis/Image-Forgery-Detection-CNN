@@ -9,7 +9,7 @@ from torch.optim.lr_scheduler import StepLR
 from torch.autograd import Variable
 import time
 
-import filters
+#import filters
 
 class SimpleCNN(nn.Module):
 
@@ -151,7 +151,7 @@ def trainNet(net, train_set, n_epochs, learning_rate):
 
 def main():
     # Image folder with fake and real image subfolders
-    DATADIR = "~/Deep-Learning-Project-Group-10/data/CASIA2/patches_no_rot"
+    DATADIR = "~/Deep-Learning-Project-Group-10/data/CASIA2/patches"
     # DATADIR = "../../data/CASIA1"
     transform = transforms.Compose([transforms.ToTensor()])
     # transform = transforms.Compose([transforms.Resize((128, 128)), transforms.ToTensor()])
