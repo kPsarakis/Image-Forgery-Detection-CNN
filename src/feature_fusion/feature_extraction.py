@@ -5,8 +5,8 @@ from skimage.util import view_as_windows
 
 
 def get_images_and_labels():
-    tampered_dir = '../../data/CASIA2/Tp/*'
-    authentic_dir = '../../data/CASIA2/Au/*'
+    tampered_dir = '../../data/CASIA2/tampered/*'
+    authentic_dir = '../../data/CASIA2/authentic/*'
     images = {}
     for im in glob.glob(authentic_dir):
         images[im] = {}

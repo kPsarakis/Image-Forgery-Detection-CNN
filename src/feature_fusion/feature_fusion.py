@@ -1,16 +1,11 @@
 import torch
-from cnn.cnn_test import dummy_test
 import numpy as np
 
 
 def get_Yi(model, patch):
     with torch.no_grad():
-        model(patch)
-        return model.conv9.weight.values().reshape([400]).numpy()
-
-
-def get_dummy_Yi():
-    return dummy_test().reshape([400]).numpy()
+        model.eval()
+        return model(patch)
 
 
 def get_Y_hat(y: np.ndarray, operation: str):

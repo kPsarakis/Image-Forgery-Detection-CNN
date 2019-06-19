@@ -1,26 +1,32 @@
-from cnn.cnn_implement import SimpleCNN
-from src.feature_fusion.feature_fusion import get_Yi, get_Y_hat, get_dummy_Yi
+from cnn.cnn_final import SimpleCNN
+from src.feature_fusion.feature_fusion import get_Yi, get_Y_hat
 import torch
 import numpy as np
 import pandas as pd
 from src.feature_fusion.feature_extraction import get_images_and_labels, get_patches
+import torchvision.transforms as transforms
+from torch.autograd import Variable
 
 
 def create_SVM_features(model):
 
+    transform = transforms.Compose([transforms.ToTensor()])
     df = pd.DataFrame()
     images = get_images_and_labels()
-
+    c = 1
     for image_name in images.keys():  # images
-
+        print("Image: ", c)
         image = images[image_name]['mat']
         label = images[image_name]['label']
         Y = []  # init Y
 
         patches = get_patches(image, stride=128)
 
-        for patch in patches: # for every patch
-            Yi = get_dummy_Yi()  # call CNN -> Yi with the patch
+        for patch in patches:  # for every patch
+            img_tensor = transform(patch)
+            img_tensor.unsqueeze_(0)
+            img_variable = Variable(img_tensor.double())
+            Yi = get_Yi(model=model, patch=img_variable)
             Y.append(Yi)  # append Yi to Y
 
         Y = np.vstack(tuple(Y))
@@ -29,6 +35,7 @@ def create_SVM_features(model):
 
         df = pd.concat([df, pd.concat([pd.DataFrame([image_name.split("\\")[1], str(label)]), pd.DataFrame(Y_hat)])],
                        axis=1, sort=False)
+        c += 1
 
     # save the feature vector to csv
     final_df = df.T
@@ -44,11 +51,14 @@ def get_df_column_names():
 
 
 def main():
-    model = SimpleCNN()
-    model.load_state_dict(torch.load('Simple_Cnn.pt'))
-    model.eval()
+    with torch.no_grad():
+        model = SimpleCNN()
+        model.load_state_dict(torch.load('../cnn/Simple_Cnn_Full_NoRot_LR0005_b200_nodrop.pt',
+                                         map_location=lambda storage, loc: storage))
+        model.eval()
+        model = model.double()
+        create_SVM_features(model)
 
 
 if __name__ == '__main__':
-    create_SVM_features(None)
-
+    main()
