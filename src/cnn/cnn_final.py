@@ -52,32 +52,41 @@ class SimpleCNN(nn.Module):
 
     def forward(self, x):
 
-        x = F.relu(self.conv1(x))
-
-        lrn = nn.LocalResponseNorm(3)  # TODO check later
-
-        x = lrn(x)
-        x = self.pool1(x)
-
-        x = F.relu(self.conv2(x))
-        x = F.relu(self.conv3(x))
-        x = F.relu(self.conv4(x))
-        x = F.relu(self.conv5(x))
-
-        x = lrn(x)
-        x = self.pool2(x)
-
-        x = F.relu(self.conv6(x))
-        x = F.relu(self.conv7(x))
-        x = F.relu(self.conv8(x))
-
-        x = x.view(-1, 16 * 5 * 5)
-
-        x = F.relu(self.fc(x))  # TODO check later
-
-        x = self.drop1(x)
-
-        x = F.softmax(x)
+        if self.training:
+            x = F.relu(self.conv0(x))
+            x = F.relu(self.conv1(x))
+            lrn = nn.LocalResponseNorm(3)  # TODO check later
+            x = lrn(x)
+            x = self.pool1(x)
+            x = F.relu(self.conv2(x))
+            x = F.relu(self.conv3(x))
+            x = F.relu(self.conv4(x))
+            x = F.relu(self.conv5(x))
+            x = lrn(x)
+            x = self.pool2(x)
+            x = F.relu(self.conv6(x))
+            x = F.relu(self.conv7(x))
+            x = F.relu(self.conv8(x))
+            x = x.view(-1, 16 * 5 * 5)
+            #         x = self.drop1(x)
+            x = F.relu(self.fc(x))
+            x = F.softmax(x, dim=1)
+        else:
+            x = F.relu(self.conv0(x))
+            x = F.relu(self.conv1(x))
+            lrn = nn.LocalResponseNorm(3)  # TODO check later
+            x = lrn(x)
+            x = self.pool1(x)
+            x = F.relu(self.conv2(x))
+            x = F.relu(self.conv3(x))
+            x = F.relu(self.conv4(x))
+            x = F.relu(self.conv5(x))
+            x = lrn(x)
+            x = self.pool2(x)
+            x = F.relu(self.conv6(x))
+            x = F.relu(self.conv7(x))
+            x = F.relu(self.conv8(x))
+            x = x.view(-1, 16 * 5 * 5)
 
         return x
 
