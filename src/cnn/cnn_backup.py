@@ -100,7 +100,7 @@ def createLossandOptimizer(net, learning_rate=0.01):
 
 
 def trainNet(net, train_set, n_epochs, learning_rate):
-    train_loader = torch.utils.data.DataLoader(train_set, batch_size=10,
+    train_loader = torch.utils.data.DataLoader(train_set, batch_size=128,
                                                shuffle=True, pin_memory=True)
     criterion, optimizer = createLossandOptimizer(net, learning_rate)
     scheduler = StepLR(optimizer, step_size=10, gamma=0.9)
@@ -154,9 +154,10 @@ def trainNet(net, train_set, n_epochs, learning_rate):
                 # print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Accuracy: {:.2f}%'
                 #       .format(epoch + 1, n_epochs, i + 1, len(train_loader), loss.item(), (correct / total) * 100))
 
-        print('---------- Epoch %d Loss: %.3f  Time: %.3f----------' % (epoch + 1, total_running_loss / c,
-                                                                        time.time() - training_start_time))
         epoch_predictions = (np.array(total_predicted) == np.array(total_labels)).sum().item()
+        print('---------- Epoch %d Loss: %.3f Accuracy: %.3f Time: %.3f----------' % (
+            epoch + 1, total_running_loss / c, epoch_predictions / len(total_predicted),
+            time.time() - training_start_time))
         epoch_accuracy.append(epoch_predictions / len(total_predicted))
         epoch_loss.append(total_running_loss / c)
     print('Finished Training')
