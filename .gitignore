@@ -9,3 +9,4 @@ src/cnn/__pycache__/cnn_implement.cpython-37.pyc
 *.pyc
 *.jpg
 *.png
+*/.idea

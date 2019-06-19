@@ -8,8 +8,12 @@ import torch.utils.data
 from torch.optim.lr_scheduler import StepLR
 from torch.autograd import Variable
 import time
+import numpy as np
+import matplotlib.pyplot as plt
 
-#import filters
+# import filters
+from src import filters
+
 
 class SimpleCNN(nn.Module):
 
@@ -17,9 +21,12 @@ class SimpleCNN(nn.Module):
         super(SimpleCNN, self).__init__()
 
         # Input channels 3 output channels 30
-        self.conv1 = nn.Conv2d(3, 30, kernel_size=5, stride=1, padding=0)
-        torch.nn.init.xavier_uniform_(self.conv1.weight)
-        # self.conv1.weight = nn.Parameter(filters.get_filters()) #- used with SRM filters
+        self.conv0 = nn.Conv2d(3, 3, kernel_size=5, stride=1, padding=0)
+        torch.nn.init.xavier_uniform_(self.conv0.weight)
+
+        self.conv1 = nn.Conv2d(3, 30, kernel_size=5, stride=2, padding=0)
+        # torch.nn.init.xavier_uniform_(self.conv1.weight)
+        self.conv1.weight = nn.Parameter(filters.get_filters())  # - used with SRM filters
 
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
 
@@ -51,7 +58,7 @@ class SimpleCNN(nn.Module):
         self.drop1 = nn.Dropout(p=0.5)
 
     def forward(self, x):
-
+        x = F.relu(self.conv0(x))
         x = F.relu(self.conv1(x))
 
         lrn = nn.LocalResponseNorm(3)  # TODO check later
@@ -68,16 +75,13 @@ class SimpleCNN(nn.Module):
         x = self.pool2(x)
 
         x = F.relu(self.conv6(x))
+
         x = F.relu(self.conv7(x))
         x = F.relu(self.conv8(x))
-
         x = x.view(-1, 16 * 5 * 5)
-
+        # x = self.drop1(x)
         x = F.relu(self.fc(x))  # TODO check later
-
-        x = self.drop1(x)
-
-        x = F.softmax(x)
+        x = F.softmax(x, dim=1)
 
         return x
 
@@ -90,21 +94,27 @@ def outputSize(in_size, kernel_size, stride, padding):
 def createLossandOptimizer(net, learning_rate=0.01):
     # TODO: implement early stopping
     loss = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.99, weight_decay=5*1e-4)
+    optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.99, weight_decay=5 * 1e-4)
+    # optimizer = optim.SGD(net.parameters(), lr=learning_rate)
     return loss, optimizer
 
 
 def trainNet(net, train_set, n_epochs, learning_rate):
-    train_loader = torch.utils.data.DataLoader(train_set, batch_size=100, shuffle=True)  #, num_workers=6, pin_memory=True)
+    train_loader = torch.utils.data.DataLoader(train_set, batch_size=128,
+                                               shuffle=True, pin_memory=True)
     criterion, optimizer = createLossandOptimizer(net, learning_rate)
     scheduler = StepLR(optimizer, step_size=10, gamma=0.9)
     n_batches = len(train_loader)
+    epoch_loss = []
+    epoch_accuracy = []
     for epoch in range(n_epochs):
         scheduler.step()
         total_running_loss = 0.0
         print_every = n_batches // 5
         training_start_time = time.time()
         c = 0
+        total_predicted = []
+        total_labels = []
         # print('Epoch: ', epoch + 1)
         # print(scheduler.get_lr())
         # print(optimizer)
@@ -128,7 +138,7 @@ def trainNet(net, train_set, n_epochs, learning_rate):
             # Print statistics
             # print('Running loss {}'.format(loss_size.item()))
             # print(i)
-            #running_loss += loss_size.item()
+            # running_loss += loss_size.item()
 
             _, predicted = torch.max(outputs.data, 1)
 
@@ -136,23 +146,35 @@ def trainNet(net, train_set, n_epochs, learning_rate):
 
             total = labels.size(0)
 
+            total_labels.extend(labels)
+            total_predicted.extend(predicted)
             if (i + 1) % (print_every + 1) == 0:  # print every 2000 mini-batches
                 total_running_loss += loss.item()
                 c += 1
-                print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Accuracy: {:.2f}%'
-                      .format(epoch + 1, n_epochs, i + 1, len(train_loader), loss.item(), (correct / total) * 100))
-                print(net.conv1.weight)
+                # print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Accuracy: {:.2f}%'
+                #       .format(epoch + 1, n_epochs, i + 1, len(train_loader), loss.item(), (correct / total) * 100))
 
-        print('---------- Epoch %d Loss: %.3f  Time: %.3f----------' % (epoch + 1, total_running_loss/c,
-                                                                        time.time() - training_start_time))
-
+        epoch_predictions = (np.array(total_predicted) == np.array(total_labels)).sum().item()
+        print('---------- Epoch %d Loss: %.3f Accuracy: %.3f Time: %.3f----------' % (
+            epoch + 1, total_running_loss / c, epoch_predictions / len(total_predicted),
+            time.time() - training_start_time))
+        epoch_accuracy.append(epoch_predictions / len(total_predicted))
+        epoch_loss.append(total_running_loss / c)
     print('Finished Training')
+    return epoch_loss, epoch_accuracy
+
+
+def plot_epochs(metric, ylab):
+    plt.plot(metric)
+    plt.ylabel(ylab)
+    plt.xlabel("Epoch")
+    plt.show()
 
 
 def main():
     # Image folder with fake and real image subfolders
-    DATADIR = "~/Deep-Learning-Project-Group-10/data/CASIA2/patches"
-    # DATADIR = "../../data/CASIA1"
+    torch.manual_seed(0)
+    DATADIR = "my_patches"  # put the directory of the file in your machine
     transform = transforms.Compose([transforms.ToTensor()])
     # transform = transforms.Compose([transforms.Resize((128, 128)), transforms.ToTensor()])
     # Fetch data
@@ -164,7 +186,10 @@ def main():
     else:
         print("no cuda")
         CNN = SimpleCNN()
-    trainNet(CNN, dataset, n_epochs=250, learning_rate=0.001)
+    epoch_loss, epoch_accuracy = trainNet(CNN, dataset, n_epochs=250, learning_rate=0.001)
+    plot_epochs(epoch_loss, 'Training Loss')
+    plot_epochs(epoch_accuracy, 'Training Accuracy')
+    print('Final Loss = {}, Final Accuracy = {}'.format(epoch_loss[-1], epoch_accuracy[-1]))
     torch.save(CNN.state_dict(), 'Simple_Cnn.pt')
 
 
