@@ -40,13 +40,13 @@ class PatchExtractor:
         self.rotations = rots[:rotations]
 
     @staticmethod
-    def delete_prev_images(dir):
+    def delete_prev_images(dir_name):
         """
         Deletes all the file in a directory.
-        :param dir: Directory name
+        :param dir_name: Directory name
         """
-        for the_file in os.listdir(dir):
-            file_path = os.path.join(dir, the_file)
+        for the_file in os.listdir(dir_name):
+            file_path = os.path.join(dir_name, the_file)
             try:
                 if os.path.isfile(file_path):
                     os.unlink(file_path)
@@ -63,7 +63,8 @@ class PatchExtractor:
         else:
             return image, mask
 
-    def get_ref_df(self):
+    @staticmethod
+    def get_ref_df():
         refs1 = pd.read_csv('../../data/NC2016_Test0601/reference/manipulation/NC2016-manipulation-ref.csv',
                             delimiter='|')
         refs2 = pd.read_csv('../../data/NC2016_Test0601/reference/removal/NC2016-removal-ref.csv', delimiter='|')
