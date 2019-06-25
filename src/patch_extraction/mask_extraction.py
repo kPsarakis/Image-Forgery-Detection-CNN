@@ -38,7 +38,7 @@ def find_mask(sp_pic, Au_pic_dict):
             gray_au_image = cv2.cvtColor(au_image, cv2.COLOR_BGR2GRAY)
             gray_sp_image = cv2.cvtColor(sp_image, cv2.COLOR_BGR2GRAY)
             # get the difference of the 2 grayscale images
-            (score, diff) = compare_ssim(gray_au_image, gray_sp_image, full=True)
+            (_, diff) = compare_ssim(gray_au_image, gray_sp_image, full=True)
             diff = cv2.medianBlur(diff, 1)
             # make background black and tampered area white
             mask = np.ones_like(diff)
@@ -70,7 +70,7 @@ def extract_masks():
             au_pic for au_pic
         in Au_pic_list}
     # extract the mask for every tampered image
-    for ind, Sp_pic in enumerate(Sp_pic_list):
+    for _, Sp_pic in enumerate(Sp_pic_list):
         find_mask(Sp_pic, Au_pic_dict)
 
 
