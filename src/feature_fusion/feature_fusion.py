@@ -2,13 +2,13 @@ import torch
 import numpy as np
 
 
-def get_Yi(model, patch):
+def get_yi(model, patch):
     with torch.no_grad():
         model.eval()
         return model(patch)
 
 
-def get_Y_hat(y: np.ndarray, operation: str):
+def get_y_hat(y: np.ndarray, operation: str):
     if operation == "max":
         return np.array(y).max(axis=0)
     elif operation == "mean":

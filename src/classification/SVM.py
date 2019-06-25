@@ -43,19 +43,4 @@ def print_confusion_matrix(X, y, opt_params):
     data = {'y_Predicted': y_pred, 'y_Actual': y_test}
     df = pd.DataFrame(data, columns=['y_Actual', 'y_Predicted'])
     conf_matrix = pd.crosstab(df['y_Actual'], df['y_Predicted'], rownames=['Actual'], colnames=['Predicted'])
-    sn.heatmap(conf_matrix, cmap=ListedColormap(['#ED7D31', '#009FDA']), annot=True)
-
-
-def main():
-    # Read features and labels from CSV
-    df = pd.read_csv(filepath_or_buffer='../../data/output/features/CASIA2_WithRot_LR001_b128_nodrop.csv')
-    X = df.loc[:, ~df.columns.isin(['labels', 'image_names'])]
-    y = df['labels']
-    print('Has NaN:', df.isnull().values.any())
-    opt_params = optimize_hyperparams(X, y)
-    classify(X, y, opt_params)
-    print_confusion_matrix(X, y, opt_params)
-
-
-if __name__ == '__main__':
-    main()
+    sn.heatmap(conf_matrix, cmap=ListedColormap(['#ED7D31', '#009FDA']), annot=True, fmt='g', cbar=False)

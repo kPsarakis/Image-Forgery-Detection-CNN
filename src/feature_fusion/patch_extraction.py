@@ -4,6 +4,16 @@ import cv2
 from skimage.util import view_as_windows
 
 
+def get_patches(image_mat, stride):
+    window_shape = (128, 128, 3)
+    windows = view_as_windows(image_mat, window_shape, step=stride)
+    patches = []
+    for m in range(windows.shape[0]):
+        for n in range(windows.shape[1]):
+            patches += [windows[m][n][0]]
+    return patches
+
+
 def get_images_and_labels():
     tampered_dir = '../../data/CASIA2_original/Tp/*'
     authentic_dir = '../../data/CASIA2_original/Au/*'
@@ -28,16 +38,6 @@ def get_images_and_labels_nc():
         im = data['ProbeFileName']
         images[im] = 1 if data['IsTarget'] == 'Y' else 0
     return images
-
-
-def get_patches(image_mat, stride):
-    window_shape = (128, 128, 3)
-    windows = view_as_windows(image_mat, window_shape, step=stride)
-    patches = []
-    for m in range(windows.shape[0]):
-        for n in range(windows.shape[1]):
-            patches += [windows[m][n][0]]
-    return patches
 
 
 def get_ref_df():
