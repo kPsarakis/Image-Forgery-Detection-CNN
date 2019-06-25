@@ -32,7 +32,7 @@ def get_images_and_labels(tampered_path, authentic_path):
 def get_images_and_labels_nc():
     refs = get_ref_df()
     images = {}
-    for index, data in refs.iterrows():
+    for _, data in refs.iterrows():
         if data['ProbeFileName'] in images:
             continue
         im = data['ProbeFileName']

@@ -171,10 +171,9 @@ class PatchExtractor:
                 rep_num -= 1
                 print(str(e))
                 pass
-            except IndexError as ie:
+            except IndexError:
                 rep_num -= 1
                 print('Mask and image have not the same dimensions')
-                pass
 
 
 if __name__ == '__main__':

@@ -183,10 +183,9 @@ class PatchExtractor:
                     rep_num -= 1
                     print(str(e))
                     pass
-                except IndexError as ie:
+                except IndexError:
                     rep_num -= 1
                     print('Mask and image have not the same dimensions')
-                    pass
             else:
                 self.extract_authentic_patches(d, self.patches_per_image, rep_num)
 
