@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import functools
 from glob import glob
+
+import PIL
 from skimage import io
 from skimage.util import view_as_windows
 import os
@@ -8,6 +10,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import warnings
+import torchvision.transforms.functional as tf
 
 warnings.filterwarnings('ignore')
 # from src.patch_extraction.mask_extraction import extract_masks
@@ -15,7 +18,7 @@ warnings.filterwarnings('ignore')
 # define the indices of the image names and read the authentic images
 background_index = [13, 21]
 au_index = [3, 6, 7, 12]
-Au_pic_list = glob('..' + os.sep + '..' + os.sep + 'data' + os.sep + 'CASIA2' + os.sep + 'Au' + os.sep + '*')
+Au_pic_list = glob('..' + os.sep + '..' + os.sep + 'data' + os.sep + 'CASIA2_original' + os.sep + 'Au' + os.sep + '*')
 Au_pic_dict = {
     au_pic.split(os.sep)[-1][au_index[0]:au_index[1]] + au_pic.split(os.sep)[-1][au_index[2]:au_index[3]]:
         au_pic for au_pic
@@ -36,7 +39,7 @@ class PatchExtractor:
         '''
         self.patches_per_image = patches_per_image
         self.stride = stride
-        rots = [0, 90, 180, 270, 45, 135, 225, 315]
+        rots = [0, 90, 180, 270]
         self.rotations = rots[:rotations]
 
     @staticmethod
@@ -63,37 +66,6 @@ class PatchExtractor:
         else:
             return image, mask
 
-    @staticmethod
-    def rotate_image(mat, angle):
-        '''
-        Rotates an image (angle in degrees) and expands image to avoid cropping
-        :param mat: Matrix representation of image
-        :param angle: Angle of rotation
-        :return: Matrix representation of rotated image
-        '''
-        height, width = mat.shape[:2]  # image shape has 3 dimensions
-        image_center = (
-            width / 2,
-            height / 2)
-        # getRotationMatrix2D needs coordinates in reverse order (width, height) compared to shape
-        rotation_mat = cv2.getRotationMatrix2D(image_center, angle, 1.)
-
-        # rotation calculates the cos and sin, taking absolutes of those.
-        abs_cos = abs(rotation_mat[0, 0])
-        abs_sin = abs(rotation_mat[0, 1])
-
-        # find the new width and height bounds
-        bound_w = int(height * abs_sin + width * abs_cos)
-        bound_h = int(height * abs_cos + width * abs_sin)
-
-        # subtract old image center (bringing image back to origo) and adding the new image center coordinates
-        rotation_mat[0, 2] += bound_w / 2 - image_center[0]
-        rotation_mat[1, 2] += bound_h / 2 - image_center[1]
-
-        # rotate image with the new bounds and translated rotation matrix
-        rotated_mat = cv2.warpAffine(mat, rotation_mat, (bound_w, bound_h))
-        return rotated_mat
-
     def extract_authentic_patches(self, sp_pic, num_of_patches, rep_num):
         '''
         Extracts and saves the patches from the authentic image
@@ -118,8 +90,9 @@ class PatchExtractor:
             inds = np.random.choice(len(non_tampered_patches), num_of_patches, replace=False)
             for i, ind in enumerate(inds):
                 for angle in self.rotations:
-                    img_rt = self.rotate_image(non_tampered_patches[ind], angle)
-                    io.imsave('patches/authentic/{0}_{1}_{2}_{3}.png'.format(au_name, i, angle, rep_num), img_rt)
+                    im_rt = tf.rotate(PIL.Image.fromarray(np.uint8(non_tampered_patches[ind])), angle=angle,
+                                      resample=PIL.Image.BILINEAR)
+                    im_rt.save('patches_casia_with_rot/authentic/{0}_{1}_{2}_{3}.png'.format(au_name, i, angle, rep_num))
 
     def extract_patches(self):
         '''
@@ -142,22 +115,22 @@ class PatchExtractor:
         #     print("Masks extracted")
 
         # create necessary directories
-        if not os.path.exists('patches'):
-            os.makedirs('patches')
-            os.makedirs('patches/authentic')
-            os.makedirs('patches/tampered')
+        if not os.path.exists('patches_casia_with_rot'):
+            os.makedirs('patches_casia_with_rot')
+            os.makedirs('patches_casia_with_rot/authentic')
+            os.makedirs('patches_casia_with_rot/tampered')
         else:
-            if os.path.exists('patches/authentic'):
-                self.delete_prev_images('patches/authentic')
+            if os.path.exists('patches_casia_with_rot/authentic'):
+                self.delete_prev_images('patches_casia_with_rot/authentic')
             else:
-                os.makedirs('patches/authentic')
-            if os.path.exists('patches/tampered'):
-                self.delete_prev_images('patches/tampered')
+                os.makedirs('patches_casia_with_rot/authentic')
+            if os.path.exists('patches_casia_with_rot/tampered'):
+                self.delete_prev_images('patches_casia_with_rot/tampered')
             else:
-                os.makedirs('patches/tampered')
+                os.makedirs('patches_casia_with_rot/tampered')
         # define window shape
         window_shape = (128, 128, 3)
-        tp_dir = '../../data/CASIA2/Tp/'
+        tp_dir = '../../data/CASIA2_original/Tp/'
         rep_num = 0
         # run for all the tampered images
         for f in os.listdir(tp_dir):
@@ -192,8 +165,9 @@ class PatchExtractor:
                 inds = np.random.choice(len(tampered_patches), num_of_patches, replace=False)
                 for i, ind in enumerate(inds):
                     for angle in self.rotations:
-                        img_rt = self.rotate_image(tampered_patches[ind][0], angle)
-                        io.imsave('patches/tampered/{0}_{1}_{2}_{3}.png'.format(im_name, i, angle, rep_num), img_rt)
+                        im_rt = tf.rotate(PIL.Image.fromarray(np.uint8(tampered_patches[ind][0])), angle=angle,
+                                          resample=PIL.Image.BILINEAR)
+                        im_rt.save('patches_casia_with_rot/tampered/{0}_{1}_{2}_{3}.png'.format(im_name, i, angle, rep_num))
                 self.extract_authentic_patches(tp_dir + f, num_of_patches, rep_num)
             except IOError as e:
                 rep_num -= 1
