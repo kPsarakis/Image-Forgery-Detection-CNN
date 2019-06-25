@@ -50,7 +50,7 @@ def create_SVM_features_nc(model):
     c = 1
     for image_name, label in images.items():  # images
         print("Image: ", c)
-        image = io.imread('../../data/CASIA2_original/' + image_name)
+        image = io.imread('../../data/NC2016_Test0601/' + image_name)
 
         Y = []  # init Y
 
