@@ -1,4 +1,0 @@
-torch
-opencv-python==4.1.0.25
-scikit-image==0.14.2
-numpy

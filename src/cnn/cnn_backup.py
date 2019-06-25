@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # import filters
-from src import filters
+from cnn import filters
 
 
 class SimpleCNN(nn.Module):
