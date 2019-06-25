@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-import functools
 from glob import glob
 from skimage import io
 from skimage.util import view_as_windows
 import os
-import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import warnings
