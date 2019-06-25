@@ -2,12 +2,13 @@
 from glob import glob
 import torchvision.transforms.functional as tf
 import PIL
-import pandas as pd
 from skimage import io
 from skimage.util import view_as_windows
 import os
 import numpy as np
 import warnings
+
+from patch_extraction.extraction_utils import get_ref_df
 
 warnings.filterwarnings('ignore')
 # from src.patch_extraction.mask_extraction import extract_masks
@@ -63,15 +64,6 @@ class PatchExtractor:
         else:
             return image, mask
 
-    @staticmethod
-    def get_ref_df():
-        refs1 = pd.read_csv('../../data/NC2016_Test0601/reference/manipulation/NC2016-manipulation-ref.csv',
-                            delimiter='|')
-        refs2 = pd.read_csv('../../data/NC2016_Test0601/reference/removal/NC2016-removal-ref.csv', delimiter='|')
-        refs3 = pd.read_csv('../../data/NC2016_Test0601/reference/splice/NC2016-splice-ref.csv', delimiter='|')
-        all_refs = pd.concat([refs1, refs2, refs3], axis=0)
-        return all_refs
-
     def extract_authentic_patches(self, d, num_of_patches, rep_num):
         """
         Extracts and saves the patches from the authentic image
@@ -119,7 +111,7 @@ class PatchExtractor:
         #     print("Extracting masks")
         #     extract_masks()
         #     print("Masks extracted")
-        all_refs = self.get_ref_df()
+        all_refs = get_ref_df()
 
         # create necessary directories
         if not os.path.exists('patches_nc_rot'):

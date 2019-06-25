@@ -1,7 +1,8 @@
 import glob
-import pandas as pd
 import cv2
 from skimage.util import view_as_windows
+
+from patch_extraction.extraction_utils import get_ref_df
 
 
 def get_patches(image_mat, stride):
@@ -38,12 +39,3 @@ def get_images_and_labels_nc():
         im = data['ProbeFileName']
         images[im] = 1 if data['IsTarget'] == 'Y' else 0
     return images
-
-
-def get_ref_df():
-    refs1 = pd.read_csv('../../data/NC2016_Test0601/reference/manipulation/NC2016-manipulation-ref.csv',
-                        delimiter='|')
-    refs2 = pd.read_csv('../../data/NC2016_Test0601/reference/removal/NC2016-removal-ref.csv', delimiter='|')
-    refs3 = pd.read_csv('../../data/NC2016_Test0601/reference/splice/NC2016-splice-ref.csv', delimiter='|')
-    all_refs = pd.concat([refs1, refs2, refs3], axis=0)
-    return all_refs
