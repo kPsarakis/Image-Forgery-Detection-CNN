@@ -29,11 +29,7 @@ def classify(X, y, opt_params):
 
 
 def print_confusion_matrix(X, y, opt_params):
-    # Run one SVM with 80-20 split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=0)
-    model = svm.SVC(kernel='rbf', gamma=opt_params['gamma'], C=opt_params['C'])
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
+    y_pred, y_test = get_predictions(X, y, opt_params)
     # Printing out false/true positives/negatives
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
     print('True negatives: ', tn, 'False positives: ', fp, 'False negatives: ', fn, 'True positives: ', tp)
@@ -46,11 +42,7 @@ def print_confusion_matrix(X, y, opt_params):
 
 
 def find_misclassified(X, y, opt_params, img_ids):
-    # Run one SVM with 80-20 split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=0)
-    model = svm.SVC(kernel='rbf', gamma=opt_params['gamma'], C=opt_params['C'])
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
+    y_pred, y_test = get_predictions(X, y, opt_params)
     misclassified = []
     for i in range(len(y_test)):
         if y_pred[i] != y_test.values[i]:
@@ -58,3 +50,13 @@ def find_misclassified(X, y, opt_params, img_ids):
     df = pd.DataFrame(misclassified)
     df.columns = ['Prediction,Actual,ImageName']
     df.to_csv('Misclassified.csv', index=False)
+
+
+def get_predictions(X, y, opt_params):
+    # Run one SVM with 80-20 split
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=0)
+    model = svm.SVC(kernel='rbf', gamma=opt_params['gamma'], C=opt_params['C'])
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+
+    return y_pred, y_test
