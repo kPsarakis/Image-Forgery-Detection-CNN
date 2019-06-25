@@ -6,13 +6,13 @@ import numpy as np
 from skimage.measure import compare_ssim
 
 
-def delete_prev_images(dir):
-    '''
+def delete_prev_images(dir_name):
+    """
     Deletes all the file in a directory.
-    :param dir: Directory name
-    '''
-    for the_file in os.listdir(dir):
-        file_path = os.path.join(dir, the_file)
+    :param dir_name: Directory name
+    """
+    for the_file in os.listdir(dir_name):
+        file_path = os.path.join(dir_name, the_file)
         try:
             if os.path.isfile(file_path):
                 os.unlink(file_path)
@@ -21,11 +21,11 @@ def delete_prev_images(dir):
 
 
 def find_mask(sp_pic, Au_pic_dict):
-    '''
+    """
     Extracts and saves the mask (ground truth) for the given tampered image.
     :param sp_pic: Tampered image
     :param Au_pic_dict: Dictionary with keys the name of the tampered image and values its path.
-    '''
+    """
     background_index = [13, 21]  # indices of background image in the tamoered image name
     save_name = sp_pic.split(os.sep)[-1][:-4]  # name of the mask
     sp_name = sp_pic.split(os.sep)[-1][background_index[0]:background_index[1]]
@@ -49,9 +49,9 @@ def find_mask(sp_pic, Au_pic_dict):
 
 
 def extract_masks():
-    '''
+    """
     Extracts and saves all the masks.
-    '''
+    """
     # create the save directory
     save_dir = 'masks'
     if not os.path.exists(save_dir):

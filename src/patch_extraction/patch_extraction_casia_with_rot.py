@@ -24,30 +24,30 @@ Au_pic_dict = {
 
 
 class PatchExtractor:
-    '''
+    """
     Patch extraction class
-    '''
+    """
 
     def __init__(self, patches_per_image=4, rotations=8, stride=8):
-        '''
+        """
         Initialize class
         :param patches_per_image: Number of samples to extract for each image
         :param rotations: Number of rotations to perform
         :param stride: Stride size to be used
-        '''
+        """
         self.patches_per_image = patches_per_image
         self.stride = stride
         rots = [0, 90, 180, 270]
         self.rotations = rots[:rotations]
 
     @staticmethod
-    def delete_prev_images(dir):
-        '''
+    def delete_prev_images(dir_name):
+        """
         Deletes all the file in a directory.
-        :param dir: Directory name
-        '''
-        for the_file in os.listdir(dir):
-            file_path = os.path.join(dir, the_file)
+        :param dir_name: Directory name
+        """
+        for the_file in os.listdir(dir_name):
+            file_path = os.path.join(dir_name, the_file)
             try:
                 if os.path.isfile(file_path):
                     os.unlink(file_path)
@@ -65,12 +65,12 @@ class PatchExtractor:
             return image, mask
 
     def extract_authentic_patches(self, sp_pic, num_of_patches, rep_num):
-        '''
+        """
         Extracts and saves the patches from the authentic image
         :param sp_pic: Name of tampered image
         :param num_of_patches: Number of patches to be extracted
         :param rep_num: Number of repetitions being done(just for the patch name)
-        '''
+        """
         sp_name = sp_pic.split('/')[-1][background_index[0]:background_index[1]]
         if sp_name in Au_pic_dict.keys():
             au_name = Au_pic_dict[sp_name].split(os.sep)[-1].split('.')[0]
@@ -93,10 +93,10 @@ class PatchExtractor:
                     im_rt.save('patches_casia_with_rot/authentic/{0}_{1}_{2}_{3}.png'.format(au_name, i, angle, rep_num))
 
     def extract_patches(self):
-        '''
+        """
         Main function which extracts all patches
         :return:
-        '''
+        """
         # uncomment to extract masks
         # mask_path = 'masks'
         # if os.path.exists(mask_path) and os.path.isdir(mask_path):
