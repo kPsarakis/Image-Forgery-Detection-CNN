@@ -9,11 +9,10 @@ from matplotlib.colors import ListedColormap
 import seaborn as sn
 
 
-def optimize_hyperparams(X, y):
+def optimize_hyperparams(X, y, params):
     # Optimize hyper-parameters
-    hyper_params = [{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4], 'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000]}]
     model = svm.SVC()
-    model_grid_search = GridSearchCV(model, hyper_params, cv=10, iid=False, n_jobs=-1)
+    model_grid_search = GridSearchCV(model, params, cv=10, iid=False, n_jobs=-1)
     model_grid_search.fit(X.values, y.values)
     print("Optimal hyper-parameters: ", model_grid_search.best_params_)
     print("Accuracy :", model_grid_search.best_score_)

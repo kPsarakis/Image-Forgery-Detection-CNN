@@ -8,10 +8,10 @@ from torch.autograd import Variable
 from skimage import io
 
 
-def create_feature_vectors(model):
+def create_feature_vectors(model, tampered_path, authentic_path):
     transform = transforms.Compose([transforms.ToTensor()])
     df = pd.DataFrame()
-    images = get_images_and_labels()
+    images = get_images_and_labels(tampered_path, authentic_path)
     c = 1
     for image_name in images.keys():  # images
         print("Image: ", c)

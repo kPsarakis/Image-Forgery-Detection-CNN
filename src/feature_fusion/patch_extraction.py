@@ -14,9 +14,9 @@ def get_patches(image_mat, stride):
     return patches
 
 
-def get_images_and_labels():
-    tampered_dir = '../../data/CASIA2_original/Tp/*'
-    authentic_dir = '../../data/CASIA2_original/Au/*'
+def get_images_and_labels(tampered_path, authentic_path):
+    tampered_dir = tampered_path
+    authentic_dir = authentic_path
     images = {}
     for im in glob.glob(authentic_dir):
         images[im] = {}
