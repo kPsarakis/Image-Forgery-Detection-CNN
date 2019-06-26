@@ -80,7 +80,7 @@ class PatchExtractorNC:
         rep_num = 0
         # run for all the tampered images
         images_checked = {}
-        for i, d in all_refs.iterrows():
+        for _, d in all_refs.iterrows():
             if d.ProbeFileID in images_checked:
                 continue
             else:
