@@ -75,7 +75,6 @@ class PatchExtractorNC:
 
         # define window shape
         window_shape = (128, 128, 3)
-        mask_window_shape = (128, 128)
         rep_num = 0
         # run for all the tampered images
         images_checked = {}

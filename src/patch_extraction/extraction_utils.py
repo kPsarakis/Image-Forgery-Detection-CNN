@@ -82,7 +82,14 @@ def create_dirs(output_path):
 def find_tampered_patches(image, im_name, mask, window_shape, stride, dataset, patches_per_image):
     # extract patches from images and masks
     patches = view_as_windows(image, window_shape, step=stride)
-    mask_patches = view_as_windows(mask, window_shape, step=stride)
+
+    if dataset == 'casia2':
+        mask_patches = view_as_windows(mask, window_shape, step=stride)
+    elif dataset == 'nc16':
+        mask_patches = view_as_windows(mask, (128, 128), step=stride)
+    else:
+        raise Exception('The datasets supported are casia2 and nc16')
+
     tampered_patches = []
     # find tampered patches
     for m in range(patches.shape[0]):
@@ -98,8 +105,6 @@ def find_tampered_patches(image, im_name, mask, window_shape, stride, dataset, p
             elif dataset == 'nc16':
                 if 0.80 * total >= num_ones >= 0.20 * total:
                     tampered_patches += [(im, ma)]
-            else:
-                raise Exception('The datasets supported are casia2 and nc16')
 
     # if patches are less than the given number then take the minimum possible
     num_of_patches = patches_per_image
