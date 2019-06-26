@@ -5,19 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from skimage.measure import compare_ssim
 
-
-def delete_prev_images(dir_name):
-    """
-    Deletes all the file in a directory.
-    :param dir_name: Directory name
-    """
-    for the_file in os.listdir(dir_name):
-        file_path = os.path.join(dir_name, the_file)
-        try:
-            if os.path.isfile(file_path):
-                os.unlink(file_path)
-        except Exception as e:
-            print(e)
+from patch_extraction.extraction_utils import delete_prev_images
 
 
 def find_mask(sp_pic, Au_pic_dict):
