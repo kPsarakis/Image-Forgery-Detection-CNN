@@ -26,7 +26,7 @@ In order to create a feature representation of an image during the test phase, *
 For the final part of the pipeline an SVM classifier is trained and tested using the 400-D representations from the previous step. In particular, we use stratified 10-fold cross-validation to obtain an unbiased error estimate.
 
 ## :bar_chart: Results
-The accuracy and cross-entropy loss per epoch during the training phase of the CNN for the two datasets is shown below:
+The accuracy and cross-entropy loss per epoch during the CNN training for the two datasets is shown below:
 <p align="center">
   <img src="https://github.com/kPsarakis/Image-Forgery-Detection-CNN/blob/master/reports/images/accuracy_augmented.png" height="300" width="400">
   <img src="https://github.com/kPsarakis/Image-Forgery-Detection-CNN/blob/master/reports/images/loss_augmented.png" height="300" width="400">
