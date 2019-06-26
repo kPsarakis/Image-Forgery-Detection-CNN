@@ -9,7 +9,6 @@ import warnings
 from patch_extraction.extraction_utils import get_ref_df
 
 # from src.patch_extraction.mask_extraction import extract_masks
-
 warnings.filterwarnings('ignore')
 
 
@@ -18,7 +17,7 @@ class PatchExtractorNC:
     Patch extraction class
     """
 
-    def __init__(self, path, patches_per_image=4, rotations=8, stride=8, mode='no_rot'):
+    def __init__(self, input_path, output_path, patches_per_image=4, rotations=8, stride=8, mode='no_rot'):
         """
         Initialize class
         :param path of the dataset
@@ -32,7 +31,8 @@ class PatchExtractorNC:
         rots = [0, 90, 180, 270]
         self.rotations = rots[:rotations]
         self.mode = mode
-        self.path = path
+        self.input_path = input_path
+        self.output_path = output_path
 
     @staticmethod
     def delete_prev_images(dir_name):
@@ -68,7 +68,7 @@ class PatchExtractorNC:
 
         # define window size
         window_shape = (128, 128, 3)
-        image = io.imread(self.path + d.ProbeFileName)
+        image = io.imread(self.input_path + d.ProbeFileName)
         # extract all patches
         non_tampered_windows = view_as_windows(image, window_shape, step=self.stride)
         non_tampered_patches = []
@@ -83,11 +83,11 @@ class PatchExtractorNC:
                 for angle in self.rotations:
                     im_rt = tf.rotate(PIL.Image.fromarray(np.uint8(non_tampered_patches[ind])), angle=angle,
                                       resample=PIL.Image.BILINEAR)
-                    im_rt.save('patches_nc_rot/authentic/{0}_{1}_{2}_{3}.png'
+                    im_rt.save(self.output_path+'/authentic/{0}_{1}_{2}_{3}.png'
                                .format(d.ProbeFileName.split('.')[-2].split('/')[-1], i, angle, rep_num))
         else:
             for i, ind in enumerate(inds):
-                io.imsave('patches_nc_no_rot/authentic/{0}_{1}.png'
+                io.imsave(self.output_path+'/authentic/{0}_{1}.png'
                           .format(d.ProbeFileName.split('.')[-2].split('/')[-1], i), non_tampered_patches[ind])
 
     def extract_patches(self):
@@ -113,19 +113,19 @@ class PatchExtractorNC:
         all_refs = get_ref_df()
 
         # create necessary directories
-        if not os.path.exists('patches_nc_rot'): # TODO Check the dirs
-            os.makedirs('patches_nc_rot')
-            os.makedirs('patches_nc_rot/authentic')
-            os.makedirs('patches_nc_rot/tampered')
+        if not os.path.exists(self.output_path):
+            os.makedirs(self.output_path)
+            os.makedirs(self.output_path+'/authentic')
+            os.makedirs(self.output_path+'/tampered')
         else:
-            if os.path.exists('patches_nc_rot/authentic'):
-                self.delete_prev_images('patches_nc_rot/authentic')
+            if os.path.exists(self.output_path+'/authentic'):
+                self.delete_prev_images(self.output_path+'/authentic')
             else:
-                os.makedirs('patches_nc_rot/authentic')
-            if os.path.exists('patches_nc_rot/tampered'):
-                self.delete_prev_images('patches_nc_rot/tampered')
+                os.makedirs(self.output_path+'/authentic')
+            if os.path.exists(self.output_path+'/tampered'):
+                self.delete_prev_images(self.output_path+'/tampered')
             else:
-                os.makedirs('patches_nc_rot/tampered')
+                os.makedirs(self.output_path+'/tampered')
         # define window shape
         window_shape = (128, 128, 3)
         mask_window_shape = (128, 128)
@@ -139,8 +139,8 @@ class PatchExtractorNC:
                 images_checked[d.ProbeFileID] = 1
             if d.IsTarget == 'Y':
                 try:
-                    image = io.imread(self.path + d.ProbeFileName)
-                    mask = io.imread(self.path + d.ProbeMaskFileName)
+                    image = io.imread(self.input_path + d.ProbeFileName)
+                    mask = io.imread(self.input_path + d.ProbeMaskFileName)
                     rep_num += 1
                     image, mask = self.check_and_reshape(image, mask)
 
@@ -170,11 +170,11 @@ class PatchExtractorNC:
                             for angle in self.rotations:
                                 im_rt = tf.rotate(PIL.Image.fromarray(np.uint8(tampered_patches[ind][0])), angle=angle,
                                                   resample=PIL.Image.BILINEAR)
-                                im_rt.save('patches_nc_rot/tampered/{0}_{1}_{2}_{3}.png'.format(
+                                im_rt.save(self.output_path+'/tampered/{0}_{1}_{2}_{3}.png'.format(
                                     d.ProbeFileName.split('.')[-2].split('/')[-1], i, angle, rep_num))
                     else:
                         for i, ind in enumerate(inds):
-                            io.imsave('patches_nc_no_rot/tampered/{0}_{1}.png'.format(
+                            io.imsave(self.output_path+'/tampered/{0}_{1}.png'.format(
                                 d.ProbeFileName.split('.')[-2].split('/')[-1], i), tampered_patches[ind][0])
                 except IOError as e:
                     rep_num -= 1
