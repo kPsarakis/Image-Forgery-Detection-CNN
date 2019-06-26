@@ -1,11 +1,11 @@
 from glob import glob
 from skimage import io
-from skimage.util import view_as_windows
 import os
 import matplotlib.pyplot as plt
 import warnings
 
-from patch_extraction.extraction_utils import check_and_reshape, extract_all_patches, create_dirs, save_patches
+from patch_extraction.extraction_utils import check_and_reshape, extract_all_patches, create_dirs, save_patches, \
+    find_tampered_patches
 
 warnings.filterwarnings('ignore')
 # from src.patch_extraction.mask_extraction import extract_masks
@@ -96,27 +96,12 @@ class PatchExtractorCASIA:
                 image, mask = check_and_reshape(image, mask)
 
                 # extract patches from images and masks
-                patches = view_as_windows(image, window_shape, step=self.stride)
-                mask_patches = view_as_windows(mask, window_shape, step=self.stride)
-                tampered_patches = []
-                # find tampered patches
-                for m in range(patches.shape[0]):
-                    for n in range(patches.shape[1]):
-                        im = patches[m][n][0]
-                        ma = mask_patches[m][n][0]
-                        num_zeros = (ma == 0).sum()
-                        num_ones = (ma == 255).sum()
-                        total = num_ones + num_zeros
-                        if num_zeros <= 0.99 * total:
-                            tampered_patches += [(im, ma)]
-                # if patches are less than the given number then take the minimum possible
-                num_of_patches = self.patches_per_image
-                if len(tampered_patches) < num_of_patches:
-                    print("Number of tampered patches for image {} are only {}".format(f, len(tampered_patches)))
-                    num_of_patches = len(tampered_patches)
-                # select the best patches, rotate and save them
+                tampered_patches, num_of_patches = find_tampered_patches(image, im_name, mask,
+                                                                         window_shape, self.stride, 'casia2',
+                                                                         self.patches_per_image)
                 save_patches(tampered_patches, num_of_patches, self.mode, self.rotations, self.output_path, im_name,
                              rep_num)
+                self.extract_authentic_patches(tp_dir + f, num_of_patches, rep_num)
             except IOError as e:
                 rep_num -= 1
                 print(str(e))

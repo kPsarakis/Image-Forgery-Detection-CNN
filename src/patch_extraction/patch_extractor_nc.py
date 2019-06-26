@@ -1,9 +1,8 @@
 from skimage import io
-from skimage.util import view_as_windows
 import warnings
 
 from patch_extraction.extraction_utils import get_ref_df, check_and_reshape, extract_all_patches, create_dirs, \
-    save_patches
+    save_patches, find_tampered_patches
 
 # from src.patch_extraction.mask_extraction import extract_masks
 warnings.filterwarnings('ignore')
@@ -95,24 +94,9 @@ class PatchExtractorNC:
                     im_name = d.ProbeFileName.split('.')[-2].split('/')[-1]
 
                     # extract patches from images and masks
-                    patches = view_as_windows(image, window_shape, step=self.stride)
-                    mask_patches = view_as_windows(mask, mask_window_shape, step=self.stride)
-                    tampered_patches = []
-                    # find tampered patches
-                    for m in range(patches.shape[0]):
-                        for n in range(patches.shape[1]):
-                            im = patches[m][n][0]
-                            ma = mask_patches[m][n][0]
-                            num_zeros = (ma == 0).sum()
-                            num_ones = (ma == 255).sum()
-                            total = num_ones + num_zeros
-                            if 0.80 * total >= num_ones >= 0.20 * total:
-                                tampered_patches += [(im, ma)]
-                    # if patches are less than the given number then take the minimum possible
-                    num_of_patches = self.patches_per_image
-                    if len(tampered_patches) < num_of_patches:
-                        print("Number of tampered patches for image are only {}".format(len(tampered_patches)))
-                        num_of_patches = len(tampered_patches)
+                    tampered_patches, num_of_patches = find_tampered_patches(image, im_name, mask,
+                                                                             window_shape, self.stride, 'nc16',
+                                                                             self.patches_per_image)
                     # select the best patches, rotate and save them
                     save_patches(tampered_patches, num_of_patches, self.mode, self.rotations, self.output_path, im_name,
                                  rep_num)
