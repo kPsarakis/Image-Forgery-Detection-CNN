@@ -2,7 +2,7 @@ import pandas as pd
 from classification.SVM import optimize_hyperparams, classify, print_confusion_matrix, find_misclassified
 
 # Read features and labels from CSV
-df = pd.read_csv(filepath_or_buffer='../data/output/features/CASIA2_WithRot_LR001_b128_nodrop_max_fusion.csv')
+df = pd.read_csv(filepath_or_buffer='../data/output/features/CASIA2_WithRot_LR001_b128_nodrop.csv')
 X = df.loc[:, ~df.columns.isin(['labels', 'image_names'])]
 y = df['labels']
 
