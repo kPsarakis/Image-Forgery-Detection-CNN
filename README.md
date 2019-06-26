@@ -3,7 +3,7 @@ In this project, we used [pytorch](https://pytorch.org/) in order to implement a
 
 ## :scroll: System Overview 
 The pipeline of the system is:
-1. Train the CNN with image paches close to the distribution of the images that the network will work on. The training patches contain both tampered and untampered regions from the tampered images and randomly selected ones from the untampered images.
+1. Train the CNN with image patches close to the distribution of the images that the network will work on. The training patches contain both tampered and untampered regions from the tampered images and randomly selected ones from the untampered images.
 2. Extract features from unseen images by breaking them into patches and applying feature fusion after the final convolutional layer of the network.
 3. Use an SVM classifier on the 400 extracted features of the previous step for the final classification.
 
@@ -20,7 +20,7 @@ The CNN architecture of this project is shown in the image below and is heavily 
 </p>
 
 ## :barber: Feature Fusion 
-In order to create a feature representation of an image during test phase, *k* patches are extracted and passed though the network. After this procedure, *k* 400-D feature maps are being exported. Finally, these feature maps are fused into one either by a max or mean opperation.
+In order to create a feature representation of an image during the test phase, *k* patches are extracted and passed through the network. After this procedure, *k* 400-D feature maps are being exported. Finally, these feature maps are fused into one either by max or mean operation.
 
 ## :flags: Classification with SVM
 For the final part of the pipeline an SVM classifier is constructed and the accuracy estimation is calculated by using 10-fold cross-validation.
@@ -38,7 +38,7 @@ The accuracy per epoch during the training phase of the CNN is shown below for t
   <img src="https://github.com/kPsarakis/Image-Forgery-Detection-CNN/blob/master/reports/images/accuracy_augmented.png" height="300" width="400">
 </p>
 
-The loss, mesured by the cross-entropy loss, per epoch during the training phase of the CNN is shown below for the 2 datasets:
+The loss, measured by the cross-entropy loss, per epoch during the training phase of the CNN is shown below for the 2 datasets:
 <p align="center">
   <img src="https://github.com/kPsarakis/Image-Forgery-Detection-CNN/blob/master/reports/images/loss_augmented.png" height="300" width="400">
 </p>
@@ -48,13 +48,15 @@ For more information feel free to take a look at our [report](https://github.com
 ## :office: Project Structure [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6913244456df4b9eadf8cae2a34b2e48)](https://www.codacy.com/app/kPsarakis/Image-Forgery-Detection-CNN?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=kPsarakis/Image-Forgery-Detection-CNN&amp;utm_campaign=Badge_Grade)
 The structure of the project is:
 
-* [`data`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data) Here lie all the data files related to the project. The CASIA2 and NC16 folders are empty because GitHub does not allow files of such size.
+The structure of the project is:
+
+* [`data`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data) Here lies all the data files related to the project. The CASIA2 and NC16 folders are empty because GitHub does not allow files of such size.
   * [`output`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output) In this folder we have all the outputs of the pipeline.
     * [`accuracy`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output/accuracy) CSVs containing the accuracy per epoch in all our runs.
     * [`features`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output/features) CSVs containing the final feature representations of every image after the feature fusion part.
     * [`loss_function`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output/loss_function) CSVs containing the loss per epoch in all our runs.
     * [`pre_trained_cnn`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output/pre_trained_cnn) Pickle files that contain the trained CNNs of all our runs.
-* [`reports`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/reports) Final report of the project that contain more details.
+* [`reports`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/reports) Final report of the project that contains more details on the implementation.
 * [`src`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src) Source folder of the project. Here we give examples on how to run every part of the pipeline. 
   * [`classification`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src/classification) Folder containing the SVM code.
   * [`cnn`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src/cnn) Folder containing the CNN code.
