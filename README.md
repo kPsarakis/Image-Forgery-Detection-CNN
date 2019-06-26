@@ -28,8 +28,8 @@ For the final part of the pipeline an SVM classifier is constructed and the accu
 ## :bar_chart: Results
 The accuracy results on both datasets after 10-fold cross-validation during the SVM classification are showcased in the table below:
 
-| Dataset | Accuracy |
-| --------| -------- |
+| Dataset |    Accuracy    |
+| ------- | -------------- |
 | CASIA2  | 96.82% ± 1.19% |
 | NC2016  | 84.89% ± 6.06% |
 
@@ -50,19 +50,19 @@ The structure of the project is:
 
 The structure of the project is:
 
-* [`data`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data) Here lies all the data files related to the project. The CASIA2 and NC16 folders are empty because GitHub does not allow files of such size.
-  * [`output`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output) In this folder we have all the outputs of the pipeline.
-    * [`accuracy`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output/accuracy) CSVs containing the accuracy per epoch in all our runs.
-    * [`features`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output/features) CSVs containing the final feature representations of every image after the feature fusion part.
-    * [`loss_function`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output/loss_function) CSVs containing the loss per epoch in all our runs.
-    * [`pre_trained_cnn`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output/pre_trained_cnn) Pickle files that contain the trained CNNs of all our runs.
-* [`reports`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/reports) Final report of the project that contains more details on the implementation.
-* [`src`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src) Source folder of the project. Here we give examples on how to run every part of the pipeline. 
-  * [`classification`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src/classification) Folder containing the SVM code.
-  * [`cnn`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src/cnn) Folder containing the CNN code.
-  * [`feature_fusion`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src/feature_fusion) Folder containing the code used for the feature fussion.
-  * [`patch_extraction`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src/patch_extraction) Folder containing the code used for the patch extraction.
-  * [`plots`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src/plots) Folder containing the code used for the plots that we generated.
+*   [`data`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data) Here lies all the data files related to the project. The CASIA2 and NC16 folders are empty because GitHub does not allow files of such size.
+    *   [`output`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output) In this folder we have all the outputs of the pipeline.
+        *   [`accuracy`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output/accuracy) CSVs containing the accuracy per epoch in all our runs.
+        *   [`features`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output/features) CSVs containing the final feature representations of every image after the feature fusion part.
+        *   [`loss_function`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output/loss_function) CSVs containing the loss per epoch in all our runs.
+        *   [`pre_trained_cnn`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output/pre_trained_cnn) Pickle files that contain the trained CNNs of all our runs.
+*   [`reports`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/reports) Final report of the project that contains more details on the implementation.
+*   [`src`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src) Source folder of the project. Here we give examples on how to run every part of the pipeline. 
+    *   [`classification`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src/classification) Folder containing the SVM code.
+    *   [`cnn`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src/cnn) Folder containing the CNN code.
+    *   [`feature_fusion`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src/feature_fusion) Folder containing the code used for the feature fussion.
+    *   [`patch_extraction`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src/patch_extraction) Folder containing the code used for the patch extraction.
+    *   [`plots`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src/plots) Folder containing the code used for the plots that we generated.
 
 ## :busts_in_silhouette: Group 10 Team Members 
 [Achilleas Vlogiaris](https://github.com/achilleasvlogiaris)
