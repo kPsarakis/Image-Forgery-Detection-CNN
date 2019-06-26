@@ -8,7 +8,7 @@ import numpy as np
 import warnings
 import torchvision.transforms.functional as tf
 
-from patch_extraction.extraction_utils import delete_prev_images, check_and_reshape, extract_all_patches
+from patch_extraction.extraction_utils import check_and_reshape, extract_all_patches, create_dirs
 
 warnings.filterwarnings('ignore')
 # from src.patch_extraction.mask_extraction import extract_masks
@@ -82,19 +82,8 @@ class PatchExtractorCASIA:
         #     print("Masks extracted")
 
         # create necessary directories
-        if not os.path.exists(self.output_path):
-            os.makedirs(self.output_path)
-            os.makedirs(self.output_path+'/authentic')
-            os.makedirs(self.output_path+'/tampered')
-        else:
-            if os.path.exists(self.output_path+'/authentic'):
-                delete_prev_images(self.output_path+'/authentic')
-            else:
-                os.makedirs(self.output_path+'/authentic')
-            if os.path.exists(self.output_path+'/tampered'):
-                delete_prev_images(self.output_path+'/tampered')
-            else:
-                os.makedirs(self.output_path+'/tampered')
+        create_dirs(self.output_path)
+
         # define window shape
         window_shape = (128, 128, 3)
         tp_dir = self.input_path+'/Tp/'
@@ -136,7 +125,7 @@ class PatchExtractorCASIA:
                             im_rt = tf.rotate(PIL.Image.fromarray(np.uint8(tampered_patches[ind][0])), angle=angle,
                                               resample=PIL.Image.BILINEAR)
                             im_rt.save(self.output_path+'/tampered/{0}_{1}_{2}_{3}.png'.format(im_name, i, angle,
-                                                                                                    rep_num))
+                                                                                               rep_num))
                 else:
                     for i, ind in enumerate(inds):
                         io.imsave(self.output_path+'/tampered/{0}_{1}_{2}.png'.format(im_name, i, rep_num),

@@ -2,11 +2,10 @@ import torchvision.transforms.functional as tf
 import PIL
 from skimage import io
 from skimage.util import view_as_windows
-import os
 import numpy as np
 import warnings
 
-from patch_extraction.extraction_utils import get_ref_df, delete_prev_images, check_and_reshape, extract_all_patches
+from patch_extraction.extraction_utils import get_ref_df, check_and_reshape, extract_all_patches, create_dirs
 
 # from src.patch_extraction.mask_extraction import extract_masks
 warnings.filterwarnings('ignore')
@@ -75,19 +74,8 @@ class PatchExtractorNC:
         all_refs = get_ref_df()
 
         # create necessary directories
-        if not os.path.exists(self.output_path):
-            os.makedirs(self.output_path)
-            os.makedirs(self.output_path+'/authentic')
-            os.makedirs(self.output_path+'/tampered')
-        else:
-            if os.path.exists(self.output_path+'/authentic'):
-                delete_prev_images(self.output_path+'/authentic')
-            else:
-                os.makedirs(self.output_path+'/authentic')
-            if os.path.exists(self.output_path+'/tampered'):
-                delete_prev_images(self.output_path+'/tampered')
-            else:
-                os.makedirs(self.output_path+'/tampered')
+        create_dirs(self.output_path)
+
         # define window shape
         window_shape = (128, 128, 3)
         mask_window_shape = (128, 128)
@@ -105,6 +93,8 @@ class PatchExtractorNC:
                     mask = io.imread(self.input_path + d.ProbeMaskFileName)
                     rep_num += 1
                     image, mask = check_and_reshape(image, mask)
+
+                    im_name = d.ProbeFileName.split('.')[-2].split('/')[-1]
 
                     # extract patches from images and masks
                     patches = view_as_windows(image, window_shape, step=self.stride)
@@ -132,12 +122,12 @@ class PatchExtractorNC:
                             for angle in self.rotations:
                                 im_rt = tf.rotate(PIL.Image.fromarray(np.uint8(tampered_patches[ind][0])), angle=angle,
                                                   resample=PIL.Image.BILINEAR)
-                                im_rt.save(self.output_path+'/tampered/{0}_{1}_{2}_{3}.png'.format(
-                                    d.ProbeFileName.split('.')[-2].split('/')[-1], i, angle, rep_num))
+                                im_rt.save(self.output_path+'/tampered/{0}_{1}_{2}_{3}.png'.format(im_name, i, angle,
+                                                                                                   rep_num))
                     else:
                         for i, ind in enumerate(inds):
-                            io.imsave(self.output_path+'/tampered/{0}_{1}.png'.format(
-                                d.ProbeFileName.split('.')[-2].split('/')[-1], i), tampered_patches[ind][0])
+                            io.imsave(self.output_path+'/tampered/{0}_{1}.png'.format(im_name, i),
+                                      tampered_patches[ind][0])
                 except IOError as e:
                     rep_num -= 1
                     print(str(e))

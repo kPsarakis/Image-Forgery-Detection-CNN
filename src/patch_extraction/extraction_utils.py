@@ -57,3 +57,19 @@ def extract_all_patches(image, window_shape, stride, num_of_patches, rotations, 
     else:
         for i, ind in enumerate(inds):
             io.imsave(output_path + '/authentic/{0}_{1}.png'.format(au_name, i), non_tampered_patches[ind])
+
+
+def create_dirs(output_path):
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+        os.makedirs(output_path + '/authentic')
+        os.makedirs(output_path + '/tampered')
+    else:
+        if os.path.exists(output_path + '/authentic'):
+            delete_prev_images(output_path + '/authentic')
+        else:
+            os.makedirs(output_path + '/authentic')
+        if os.path.exists(output_path + '/tampered'):
+            delete_prev_images(output_path + '/tampered')
+        else:
+            os.makedirs(output_path + '/tampered')
