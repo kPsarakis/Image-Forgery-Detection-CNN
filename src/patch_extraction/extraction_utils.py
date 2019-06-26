@@ -8,10 +8,10 @@ import PIL
 
 
 def get_ref_df():
-    refs1 = pd.read_csv('../../data/NC2016_Test0601/reference/manipulation/NC2016-manipulation-ref.csv',
+    refs1 = pd.read_csv('../data/NC2016/reference/manipulation/NC2016-manipulation-ref.csv',
                         delimiter='|')
-    refs2 = pd.read_csv('../../data/NC2016_Test0601/reference/removal/NC2016-removal-ref.csv', delimiter='|')
-    refs3 = pd.read_csv('../../data/NC2016_Test0601/reference/splice/NC2016-splice-ref.csv', delimiter='|')
+    refs2 = pd.read_csv('../data/NC2016/reference/removal/NC2016-removal-ref.csv', delimiter='|')
+    refs3 = pd.read_csv('../data/NC2016/reference/splice/NC2016-splice-ref.csv', delimiter='|')
     all_refs = pd.concat([refs1, refs2, refs3], axis=0)
     return all_refs
 
@@ -47,20 +47,23 @@ def extract_all_patches(image, window_shape, stride, num_of_patches, rotations, 
         for n in range(non_tampered_windows.shape[1]):
             non_tampered_patches += [non_tampered_windows[m][n][0]]
     # select random some patches, rotate and save them
-    save_patches(non_tampered_patches, num_of_patches, mode, rotations, output_path, im_name, rep_num)
+    save_patches(non_tampered_patches, num_of_patches, mode, rotations, output_path, im_name, rep_num,
+                 patch_type='authentic')
 
 
-def save_patches(patches, num_of_patches, mode, rotations, output_path, im_name, rep_num):
+def save_patches(patches, num_of_patches, mode, rotations, output_path, im_name, rep_num, patch_type):
     inds = np.random.choice(len(patches), num_of_patches, replace=False)
     if mode == 'rot':
         for i, ind in enumerate(inds):
+            image = patches[ind][0] if patch_type == 'tampered' else patches[ind]
             for angle in rotations:
-                im_rt = tf.rotate(PIL.Image.fromarray(np.uint8(patches[ind][0])), angle=angle,
+                im_rt = tf.rotate(PIL.Image.fromarray(np.uint8(image)), angle=angle,
                                   resample=PIL.Image.BILINEAR)
-                im_rt.save(output_path + '/tampered/{0}_{1}_{2}_{3}.png'.format(im_name, i, angle, rep_num))
+                im_rt.save(output_path + '/{0}/{1}_{2}_{3}_{4}.png'.format(patch_type, im_name, i, angle, rep_num))
     else:
         for i, ind in enumerate(inds):
-            io.imsave(output_path + '/tampered/{0}_{1}_{2}.png'.format(im_name, i, rep_num), patches[ind][0])
+            image = patches[ind][0] if patch_type == 'tampered' else patches[ind]
+            io.imsave(output_path + '/{0}/{1}_{2}_{3}.png'.format(patch_type, im_name, i, rep_num), image)
 
 
 def create_dirs(output_path):
@@ -109,7 +112,7 @@ def find_tampered_patches(image, im_name, mask, window_shape, stride, dataset, p
     # if patches are less than the given number then take the minimum possible
     num_of_patches = patches_per_image
     if len(tampered_patches) < num_of_patches:
-        print("Number of tampered patches for image {} are only {}".format(im_name, len(tampered_patches)))
+        print("Number of tampered patches for image {} is only {}".format(im_name, len(tampered_patches)))
         num_of_patches = len(tampered_patches)
 
     return tampered_patches, num_of_patches

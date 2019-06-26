@@ -98,7 +98,7 @@ class PatchExtractorNC:
                                                                              self.patches_per_image)
                     # select the best patches, rotate and save them
                     save_patches(tampered_patches, num_of_patches, self.mode, self.rotations, self.output_path, im_name,
-                                 rep_num)
+                                 rep_num, patch_type='tampered')
                 except IOError as e:
                     rep_num -= 1
                     print(str(e))

@@ -92,7 +92,7 @@ class PatchExtractorCASIA:
                 image = io.imread(tp_dir + f)
                 im_name = f.split(os.sep)[-1].split('.')[0]
                 # read mask
-                mask = io.imread('masks/' + im_name + '_gt.png')
+                mask = io.imread('patch_extraction/masks/' + im_name + '_gt.png')
                 image, mask = check_and_reshape(image, mask)
 
                 # extract patches from images and masks
@@ -100,7 +100,7 @@ class PatchExtractorCASIA:
                                                                          window_shape, self.stride, 'casia2',
                                                                          self.patches_per_image)
                 save_patches(tampered_patches, num_of_patches, self.mode, self.rotations, self.output_path, im_name,
-                             rep_num)
+                             rep_num, patch_type='tampered')
                 self.extract_authentic_patches(tp_dir + f, num_of_patches, rep_num)
             except IOError as e:
                 rep_num -= 1
