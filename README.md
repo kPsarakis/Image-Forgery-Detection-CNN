@@ -56,7 +56,9 @@ The structure of the project is:
         *   [`features`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output/features) CSVs containing the final feature representations of every image after the feature fusion part.
         *   [`loss_function`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output/loss_function) CSVs containing the loss per epoch in all our runs.
         *   [`pre_trained_cnn`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output/pre_trained_cnn) Pickle files that contain the trained CNNs of all our runs.
+        
 *   [`reports`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/reports) Final report of the project that contains more details on the implementation.
+
 *   [`src`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src) Source folder of the project. Here we give examples on how to run every part of the pipeline. 
     *   [`classification`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src/classification) Folder containing the SVM code.
     *   [`cnn`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src/cnn) Folder containing the CNN code.
