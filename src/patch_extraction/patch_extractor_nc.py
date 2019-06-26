@@ -6,7 +6,7 @@ import os
 import numpy as np
 import warnings
 
-from patch_extraction.extraction_utils import get_ref_df, delete_prev_images, check_and_reshape
+from patch_extraction.extraction_utils import get_ref_df, delete_prev_images, check_and_reshape, extract_all_patches
 
 # from src.patch_extraction.mask_extraction import extract_masks
 warnings.filterwarnings('ignore')
@@ -45,26 +45,12 @@ class PatchExtractorNC:
         # define window size
         window_shape = (128, 128, 3)
         image = io.imread(self.input_path + d.ProbeFileName)
-        # extract all patches
-        non_tampered_windows = view_as_windows(image, window_shape, step=self.stride)
-        non_tampered_patches = []
-        for m in range(non_tampered_windows.shape[0]):
-            for n in range(non_tampered_windows.shape[1]):
-                non_tampered_patches += [non_tampered_windows[m][n][0]]
-        # select random some patches, rotate and save them
-        inds = np.random.choice(len(non_tampered_patches), num_of_patches, replace=False)
 
-        if self.mode == 'rot':
-            for i, ind in enumerate(inds):
-                for angle in self.rotations:
-                    im_rt = tf.rotate(PIL.Image.fromarray(np.uint8(non_tampered_patches[ind])), angle=angle,
-                                      resample=PIL.Image.BILINEAR)
-                    im_rt.save(self.output_path+'/authentic/{0}_{1}_{2}_{3}.png'
-                               .format(d.ProbeFileName.split('.')[-2].split('/')[-1], i, angle, rep_num))
-        else:
-            for i, ind in enumerate(inds):
-                io.imsave(self.output_path+'/authentic/{0}_{1}.png'
-                          .format(d.ProbeFileName.split('.')[-2].split('/')[-1], i), non_tampered_patches[ind])
+        au_name = d.ProbeFileName.split('.')[-2].split('/')[-1]
+
+        # extract all patches
+        extract_all_patches(image, window_shape, self.stride, num_of_patches, self.rotations, self.output_path,
+                            au_name, rep_num, self.mode)
 
     def extract_patches(self):
         """
