@@ -6,7 +6,7 @@ import os
 import numpy as np
 import warnings
 
-from patch_extraction.extraction_utils import get_ref_df
+from patch_extraction.extraction_utils import get_ref_df, delete_prev_images, check_and_reshape
 
 # from src.patch_extraction.mask_extraction import extract_masks
 warnings.filterwarnings('ignore')
@@ -33,30 +33,6 @@ class PatchExtractorNC:
         self.mode = mode
         self.input_path = input_path
         self.output_path = output_path
-
-    @staticmethod
-    def delete_prev_images(dir_name):
-        """
-        Deletes all the file in a directory.
-        :param dir_name: Directory name
-        """
-        for the_file in os.listdir(dir_name):
-            file_path = os.path.join(dir_name, the_file)
-            try:
-                if os.path.isfile(file_path):
-                    os.unlink(file_path)
-            except Exception as e:
-                print(e)
-
-    @staticmethod
-    def check_and_reshape(image, mask):
-        if image.shape == mask.shape:
-            return image, mask
-        elif image.shape[0] == mask.shape[1] and image.shape[1] == mask.shape[0]:
-            mask = np.reshape(mask, (image.shape[0], image.shape[1], mask.shape[2]))
-            return image, mask
-        else:
-            return image, mask
 
     def extract_authentic_patches(self, d, num_of_patches, rep_num):
         """
@@ -119,11 +95,11 @@ class PatchExtractorNC:
             os.makedirs(self.output_path+'/tampered')
         else:
             if os.path.exists(self.output_path+'/authentic'):
-                self.delete_prev_images(self.output_path+'/authentic')
+                delete_prev_images(self.output_path+'/authentic')
             else:
                 os.makedirs(self.output_path+'/authentic')
             if os.path.exists(self.output_path+'/tampered'):
-                self.delete_prev_images(self.output_path+'/tampered')
+                delete_prev_images(self.output_path+'/tampered')
             else:
                 os.makedirs(self.output_path+'/tampered')
         # define window shape
@@ -142,7 +118,7 @@ class PatchExtractorNC:
                     image = io.imread(self.input_path + d.ProbeFileName)
                     mask = io.imread(self.input_path + d.ProbeMaskFileName)
                     rep_num += 1
-                    image, mask = self.check_and_reshape(image, mask)
+                    image, mask = check_and_reshape(image, mask)
 
                     # extract patches from images and masks
                     patches = view_as_windows(image, window_shape, step=self.stride)

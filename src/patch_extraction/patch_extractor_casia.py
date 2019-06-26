@@ -8,6 +8,8 @@ import numpy as np
 import warnings
 import torchvision.transforms.functional as tf
 
+from patch_extraction.extraction_utils import delete_prev_images, check_and_reshape
+
 warnings.filterwarnings('ignore')
 # from src.patch_extraction.mask_extraction import extract_masks
 
@@ -40,30 +42,6 @@ class PatchExtractorCASIA:
             au_pic.split(os.sep)[-1][au_index[0]:au_index[1]] + au_pic.split(os.sep)[-1][au_index[2]:au_index[3]]:
                 au_pic for au_pic
             in au_pic_list}
-
-    @staticmethod
-    def delete_prev_images(dir_name):
-        """
-        Deletes all the file in a directory.
-        :param dir_name: Directory name
-        """
-        for the_file in os.listdir(dir_name):
-            file_path = os.path.join(dir_name, the_file)
-            try:
-                if os.path.isfile(file_path):
-                    os.unlink(file_path)
-            except Exception as e:
-                print(e)
-
-    @staticmethod
-    def check_and_reshape(image, mask):
-        if image.shape == mask.shape:
-            return image, mask
-        elif image.shape[0] == mask.shape[1] and image.shape[1] == mask.shape[0]:
-            mask = np.reshape(mask, (image.shape[0], image.shape[1], mask.shape[2]))
-            return image, mask
-        else:
-            return image, mask
 
     def extract_authentic_patches(self, sp_pic, num_of_patches, rep_num):
         """
@@ -125,11 +103,11 @@ class PatchExtractorCASIA:
             os.makedirs(self.output_path+'/tampered')
         else:
             if os.path.exists(self.output_path+'/authentic'):
-                self.delete_prev_images(self.output_path+'/authentic')
+                delete_prev_images(self.output_path+'/authentic')
             else:
                 os.makedirs(self.output_path+'/authentic')
             if os.path.exists(self.output_path+'/tampered'):
-                self.delete_prev_images(self.output_path+'/tampered')
+                delete_prev_images(self.output_path+'/tampered')
             else:
                 os.makedirs(self.output_path+'/tampered')
         # define window shape
@@ -144,7 +122,7 @@ class PatchExtractorCASIA:
                 im_name = f.split(os.sep)[-1].split('.')[0]
                 # read mask
                 mask = io.imread('masks/' + im_name + '_gt.png')
-                image, mask = self.check_and_reshape(image, mask)
+                image, mask = check_and_reshape(image, mask)
 
                 # extract patches from images and masks
                 patches = view_as_windows(image, window_shape, step=self.stride)
