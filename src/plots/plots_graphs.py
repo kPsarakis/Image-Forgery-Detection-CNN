@@ -12,9 +12,9 @@ def plot_epochs(metric1, metric2, ylab):
 
 
 if __name__ == "__main__":
-    # df1 = pd.read_csv(filepath_or_buffer="../../data/output/accuracy/CASIA2_WithRot_LR001_b128_nodrop_Accuracy.csv")
-    # df2 = pd.read_csv(filepath_or_buffer="../../data/output/accuracy/NC16_WithRot_LR001_b128_withdrop_Accuracy.csv")
-    df3 = pd.read_csv(filepath_or_buffer="../../data/output/loss_function/CASIA2_NoRot_LR0005_b200_nodrop_Loss.csv")
-    df4 = pd.read_csv(filepath_or_buffer="../../data/output/loss_function/NC16_NoRot_LR001_b32_withdrop_Loss.csv")
-    # plot_epochs(df1.iloc[:, 1], df2.iloc[:, 1], 'Training Accuracy')
+    df1 = pd.read_csv(filepath_or_buffer="../../data/output/accuracy/CASIA2_WithRot_LR001_b128_nodrop_Accuracy.csv")
+    df2 = pd.read_csv(filepath_or_buffer="../../data/output/accuracy/NC16_WithRot_LR001_b128_withdrop_Accuracy.csv")
+    df3 = pd.read_csv(filepath_or_buffer="../../data/output/loss_function/CASIA2_WithRot_LR001_b128_nodrop_Loss.csv")
+    df4 = pd.read_csv(filepath_or_buffer="../../data/output/loss_function/NC16_WithRot_LR001_b128_withdrop_Loss.csv")
+    plot_epochs(df1.iloc[:, 1], df2.iloc[:, 1], 'Training Accuracy')
     plot_epochs(df3.iloc[:, 1], df4.iloc[:, 1], 'Training Loss')
