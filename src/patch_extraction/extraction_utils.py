@@ -40,23 +40,27 @@ def check_and_reshape(image, mask):
         return image, mask
 
 
-def extract_all_patches(image, window_shape, stride, num_of_patches, rotations, output_path, au_name, rep_num, mode):
+def extract_all_patches(image, window_shape, stride, num_of_patches, rotations, output_path, im_name, rep_num, mode):
     non_tampered_windows = view_as_windows(image, window_shape, step=stride)
     non_tampered_patches = []
     for m in range(non_tampered_windows.shape[0]):
         for n in range(non_tampered_windows.shape[1]):
             non_tampered_patches += [non_tampered_windows[m][n][0]]
     # select random some patches, rotate and save them
-    inds = np.random.choice(len(non_tampered_patches), num_of_patches, replace=False)
+    save_patches(non_tampered_patches, num_of_patches, mode, rotations, output_path, im_name, rep_num)
+
+
+def save_patches(patches, num_of_patches, mode, rotations, output_path, im_name, rep_num):
+    inds = np.random.choice(len(patches), num_of_patches, replace=False)
     if mode == 'rot':
         for i, ind in enumerate(inds):
             for angle in rotations:
-                im_rt = tf.rotate(PIL.Image.fromarray(np.uint8(non_tampered_patches[ind])), angle=angle,
+                im_rt = tf.rotate(PIL.Image.fromarray(np.uint8(patches[ind][0])), angle=angle,
                                   resample=PIL.Image.BILINEAR)
-                im_rt.save(output_path + '/authentic/{0}_{1}_{2}_{3}.png'.format(au_name, i, angle, rep_num))
+                im_rt.save(output_path + '/tampered/{0}_{1}_{2}_{3}.png'.format(im_name, i, angle, rep_num))
     else:
         for i, ind in enumerate(inds):
-            io.imsave(output_path + '/authentic/{0}_{1}.png'.format(au_name, i), non_tampered_patches[ind])
+            io.imsave(output_path + '/tampered/{0}_{1}_{2}.png'.format(im_name, i, rep_num), patches[ind][0])
 
 
 def create_dirs(output_path):

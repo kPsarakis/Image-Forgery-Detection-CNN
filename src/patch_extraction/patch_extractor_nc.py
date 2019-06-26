@@ -1,11 +1,9 @@
-import torchvision.transforms.functional as tf
-import PIL
 from skimage import io
 from skimage.util import view_as_windows
-import numpy as np
 import warnings
 
-from patch_extraction.extraction_utils import get_ref_df, check_and_reshape, extract_all_patches, create_dirs
+from patch_extraction.extraction_utils import get_ref_df, check_and_reshape, extract_all_patches, create_dirs, \
+    save_patches
 
 # from src.patch_extraction.mask_extraction import extract_masks
 warnings.filterwarnings('ignore')
@@ -116,18 +114,8 @@ class PatchExtractorNC:
                         print("Number of tampered patches for image are only {}".format(len(tampered_patches)))
                         num_of_patches = len(tampered_patches)
                     # select the best patches, rotate and save them
-                    inds = np.random.choice(len(tampered_patches), num_of_patches, replace=False)
-                    if self.mode == 'rot':
-                        for i, ind in enumerate(inds):
-                            for angle in self.rotations:
-                                im_rt = tf.rotate(PIL.Image.fromarray(np.uint8(tampered_patches[ind][0])), angle=angle,
-                                                  resample=PIL.Image.BILINEAR)
-                                im_rt.save(self.output_path+'/tampered/{0}_{1}_{2}_{3}.png'.format(im_name, i, angle,
-                                                                                                   rep_num))
-                    else:
-                        for i, ind in enumerate(inds):
-                            io.imsave(self.output_path+'/tampered/{0}_{1}.png'.format(im_name, i),
-                                      tampered_patches[ind][0])
+                    save_patches(tampered_patches, num_of_patches, self.mode, self.rotations, self.output_path, im_name,
+                                 rep_num)
                 except IOError as e:
                     rep_num -= 1
                     print(str(e))
