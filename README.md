@@ -46,15 +46,23 @@ The loss, mesured by the cross-entropy loss, per epoch during the training phase
 For more information feel free to take a look at our [report](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/blob/master/reports/Group_10-Image_Forgery_Detection_report.pdf).
 
 ## :office: Project Structure [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6913244456df4b9eadf8cae2a34b2e48)](https://www.codacy.com/app/kPsarakis/Image-Forgery-Detection-CNN?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=kPsarakis/Image-Forgery-Detection-CNN&amp;utm_campaign=Badge_Grade)
-
 The structure of the project is:
 
-
-
-
+* [`data`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data) Here lie all the data files related to the project. The CASIA2 and NC16 folders are empty because GitHub does not allow files of such size.
+  * [`output`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output) In this folder we have all the outputs of the pipeline.
+    * [`accuracy`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output/accuracy)
+    * [`features`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output/features)
+    * [`loss_function`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output/loss_function)
+    * [`pre_trained_cnn`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/data/output/pre_trained_cnn)
+* [`reports`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/reports)
+* [`src`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src)
+  * [`classification`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src/classification)
+  * [`cnn`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src/cnn)
+  * [`feature_fusion`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src/feature_fusion)
+  * [`patch_extraction`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src/patch_extraction)
+  * [`plots`](https://github.com/kPsarakis/Image-Forgery-Detection-CNN/tree/master/src/plots)
 
 ## :busts_in_silhouette: Group 10 Team Members 
-
 [Achilleas Vlogiaris](https://github.com/achilleasvlogiaris)
 
 [Arkajit Bhattacharya](https://github.com/arkajitb)
