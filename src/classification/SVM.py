@@ -10,6 +10,13 @@ import seaborn as sn
 
 
 def optimize_hyperparams(X, y, params):
+    """
+    Hyperparameter optimization of the SVM
+    :param X: The feature vectors
+    :param y: The labels
+    :param params: The grid of all the possible optimal hyperparameters
+    :returns: The optimal hyperparameters
+    """
     # Optimize hyper-parameters
     model = svm.SVC()
     model_grid_search = GridSearchCV(model, params, cv=10, iid=False, n_jobs=-1)
@@ -20,6 +27,12 @@ def optimize_hyperparams(X, y, params):
 
 
 def classify(X, y, opt_params):
+    """
+    Classify a feature vector using SVM and print some metrics
+    :param X: The feature vectors
+    :param y: The labels
+    :param opt_params: The optimal hyperparameters
+    """
     # Single SVM run with optimized hyperparameters and
     model = svm.SVC(kernel='rbf', gamma=opt_params['gamma'], C=opt_params['C'])
     scores = cross_val_score(model, X, y, cv=10, scoring='accuracy', n_jobs=-1)
@@ -29,6 +42,12 @@ def classify(X, y, opt_params):
 
 
 def print_confusion_matrix(X, y, opt_params):
+    """
+    Print the confusion matrix of an SVM classification
+    :param X: The feature vectors
+    :param y: The labels
+    :param opt_params: The optimal hyperparameters
+    """
     y_pred, y_test = get_predictions(X, y, opt_params)
     # Printing out false/true positives/negatives
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
@@ -42,6 +61,13 @@ def print_confusion_matrix(X, y, opt_params):
 
 
 def find_misclassified(X, y, opt_params, img_ids):
+    """
+    Gets the misclassified image ids and writes them to a csv
+    :param X: The feature vectors
+    :param y: The labels
+    :param opt_params: The optimal hyperparameters
+    :param img_ids: The image ids that correspond to the feature vector(X)
+    """
     y_pred, y_test = get_predictions(X, y, opt_params)
     misclassified = []
     for i in range(len(y_test)):
@@ -53,6 +79,13 @@ def find_misclassified(X, y, opt_params, img_ids):
 
 
 def get_predictions(X, y, opt_params):
+    """
+    Classification using SVM
+    :param X: The feature vectors
+    :param y: The labels
+    :param opt_params: The optimal hyperparameters
+    :returns: The predicted and true labels
+    """
     # Run one SVM with 80-20 split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=0)
     model = svm.SVC(kernel='rbf', gamma=opt_params['gamma'], C=opt_params['C'])

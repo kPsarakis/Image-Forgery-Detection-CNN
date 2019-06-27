@@ -8,13 +8,27 @@ import numpy as np
 
 
 def create_loss_and_optimizer(net, learning_rate=0.01):
+    """
+    Creates the loss function and optimizer of the network.
+    :param net: The network object
+    :param learning_rate: The initial learning rate
+    :returns: The loss function and the optimizer
+    """
     loss = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.99, weight_decay=5 * 1e-4)
     return loss, optimizer
 
 
 def train_net(net, train_set, n_epochs, learning_rate, batch_size):
-
+    """
+    Training of the CNN
+    :param net: The CNN object
+    :param train_set: The training part of the dataset
+    :param n_epochs: The number of epochs of the experiment
+    :param learning_rate: The initial learning rate
+    :param batch_size: The batch size of the SGD
+    :returns: The epoch loss (vector) and the epoch accuracy (vector)
+    """
     train_loader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True, pin_memory=True)
     criterion, optimizer = create_loss_and_optimizer(net, learning_rate)
     scheduler = StepLR(optimizer, step_size=10, gamma=0.9)

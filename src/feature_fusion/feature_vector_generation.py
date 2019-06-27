@@ -8,8 +8,14 @@ from torch.autograd import Variable
 from skimage import io
 
 
-def create_feature_vectors(model, tampered_path, authentic_path):
-
+def create_feature_vectors(model, tampered_path, authentic_path, output_name):
+    """
+    Writes the feature vectors of the CASIA2 dataset.
+    :param model: The pre-trained CNN object
+    :param tampered_path: The path of the tampered images of the CASIA2 dataset
+    :param authentic_path: The path of the authentic images of the CASIA2 dataset
+    :param output_name: The name of the output CSV that contains the feature vectors
+    """
     df = pd.DataFrame()
     images = get_images_and_labels(tampered_path, authentic_path)
     c = 1
@@ -26,11 +32,16 @@ def create_feature_vectors(model, tampered_path, authentic_path):
     # save the feature vector to csv
     final_df = df.T
     final_df.columns = get_df_column_names()
-    final_df.to_csv('test.csv', index=False)  # csv type [im_name][label][f1,f2,...,fK]
+    final_df.to_csv(output_name, index=False)  # csv type [im_name][label][f1,f2,...,fK]
 
 
-def create_feature_vectors_nc(model):
-
+def create_feature_vectors_nc(model, input_path, output_name):
+    """
+    Writes the feature vectors of the NC 2016 dataset.
+    :param model: The pre-trained CNN object
+    :param input_path: The path of the dataset
+    :param output_name: The name of the output CSV that contains the feature vectors
+    """
     df = pd.DataFrame()
     images = get_images_and_labels_nc()
     c = 1
@@ -38,7 +49,7 @@ def create_feature_vectors_nc(model):
 
         print("Image: ", c)
 
-        image = io.imread('../../data/NC2016_Test0601/' + image_name)
+        image = io.imread(input_path + image_name)
 
         df = pd.concat([df, pd.concat([pd.DataFrame([image_name, str(label)]),
                                        pd.DataFrame(get_patch_yi(model, image))])], axis=1, sort=False)
@@ -49,11 +60,16 @@ def create_feature_vectors_nc(model):
     print(get_df_column_names())
     final_df.columns = get_df_column_names()
 
-    final_df.to_csv('test.csv', index=False)  # csv type [im_name][label][f1,f2,...,fK]
+    final_df.to_csv(output_name, index=False)  # csv type [im_name][label][f1,f2,...,fK]
 
 
 def get_patch_yi(model, image):
-
+    """
+    Calculates the feature representation of an image.
+    :param model: The pre-trained CNN object
+    :param image: The image
+    :returns: The image's feature representation
+    """
     transform = transforms.Compose([transforms.ToTensor()])
 
     y = []  # init Y
@@ -75,6 +91,10 @@ def get_patch_yi(model, image):
 
 
 def get_df_column_names():
+    """
+    Rename the feature csv column names as [im_names][labels][f1,f2,...,fK].
+    :returns: The column names
+    """
     names = ["image_names", "labels"]
     for i in range(400):
         names.append("f" + str(i + 1))

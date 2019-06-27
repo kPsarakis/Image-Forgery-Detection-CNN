@@ -12,4 +12,5 @@ with torch.no_grad():
 
     authentic_path = 'D:/CASIA2/Au/*'
     tampered_path = 'D:/CASIA2/Tp/*'
-    create_feature_vectors(model, tampered_path, authentic_path)
+    output_filename = 'test.csv'
+    create_feature_vectors(model, tampered_path, authentic_path, output_filename)

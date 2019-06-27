@@ -6,8 +6,13 @@ from cnn.SRM_filters import get_filters
 
 
 class CNN(nn.Module):
-
+    """
+    The convolutional neural network (CNN) class
+    """
     def __init__(self):
+        """
+        Initialization of all the layers in the network.
+        """
         super(CNN, self).__init__()
 
         self.conv0 = nn.Conv2d(3, 3, kernel_size=5, stride=1, padding=0)
@@ -46,7 +51,11 @@ class CNN(nn.Module):
         self.drop1 = nn.Dropout(p=0.5)  # used only for the NC dataset
 
     def forward(self, x):
-
+        """
+        The forward step of the network that consumes an image patch and either uses a fully connected layer in the
+        training phase with a softmax or just returns the feature map after the final convolutional layer.
+        :returns: Either the output of the softmax during training or the 400-D feature representation at testing
+        """
         x = f.relu(self.conv0(x))
         x = f.relu(self.conv1(x))
         lrn = nn.LocalResponseNorm(3)
@@ -63,6 +72,7 @@ class CNN(nn.Module):
         x = f.relu(self.conv8(x))
         x = x.view(-1, 16 * 5 * 5)
 
+        # In the training phase we also need the fully connected layer with softmax
         if self.training:
             # x = self.drop1(x) # used only for the NC dataset
             x = f.relu(self.fc(x))

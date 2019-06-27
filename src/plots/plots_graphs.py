@@ -3,6 +3,12 @@ import pandas as pd
 
 
 def plot_epochs(metric1, metric2, ylab):
+    """
+    Plot the metrics of both datasets
+    :param metric1: The first metric that we want to plot
+    :param metric2: The second metric that we want to plot
+    :param ylab: The label of the y axis
+    """
     plt.plot(metric1, label='CASIA2')
     plt.plot(metric2, label='NC16')
     plt.ylabel(ylab)
