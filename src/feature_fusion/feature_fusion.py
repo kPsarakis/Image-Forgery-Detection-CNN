@@ -1,3 +1,5 @@
+import math
+
 import torch
 import numpy as np
 
@@ -14,6 +16,10 @@ def get_yi(model, patch):
         return model(patch)
 
 
+class WrongOperationOption(Exception):
+    pass
+
+
 def get_y_hat(y: np.ndarray, operation: str):
     """
     Fuses the image's patches feature representation
@@ -22,8 +28,8 @@ def get_y_hat(y: np.ndarray, operation: str):
     :returns: The final 400-D feature representation of the entire image
     """
     if operation == "max":
-        return np.array(y).max(axis=0)
+        return np.array(y).max(axis=0, initial=-math.inf)
     elif operation == "mean":
         return np.array(y).mean(axis=0)
     else:
-        raise Exception("The operation can be either mean or max")
+        raise WrongOperationOption("The operation can be either mean or max")

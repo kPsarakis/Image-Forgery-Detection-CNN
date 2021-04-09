@@ -10,7 +10,7 @@ with torch.no_grad():
     model.eval()
     model = model.double()
 
-    authentic_path = 'D:/CASIA2/Au/*'
-    tampered_path = 'D:/CASIA2/Tp/*'
-    output_filename = 'test.csv'
+    authentic_path = '../data/CASIA2/Au/*'
+    tampered_path = '../data/CASIA2/Tp/*'
+    output_filename = 'CASIA2_WithRot_LR001_b128_nodrop.csv'
     create_feature_vectors(model, tampered_path, authentic_path, output_filename)

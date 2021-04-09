@@ -1,8 +1,7 @@
 import torch.nn.functional as f
 import torch.nn as nn
 
-
-from cnn.SRM_filters import get_filters
+from src.cnn.SRM_filters import get_filters
 
 
 class CNN(nn.Module):

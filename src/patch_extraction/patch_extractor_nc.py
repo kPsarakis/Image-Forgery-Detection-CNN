@@ -1,8 +1,8 @@
 from skimage import io
 import warnings
 
-from patch_extraction.extraction_utils import get_ref_df, check_and_reshape, extract_all_patches, create_dirs, \
-    save_patches, find_tampered_patches
+from .extraction_utils import get_ref_df, check_and_reshape, extract_all_patches, create_dirs, save_patches, \
+    find_tampered_patches
 
 # from src.patch_extraction.mask_extraction import extract_masks
 warnings.filterwarnings('ignore')

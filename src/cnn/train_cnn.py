@@ -38,7 +38,6 @@ def train_net(net, train_set, n_epochs, learning_rate, batch_size):
 
     for epoch in range(n_epochs):
 
-        scheduler.step()
         total_running_loss = 0.0
         print_every = n_batches // 5
         training_start_time = time.time()
@@ -79,6 +78,7 @@ def train_net(net, train_set, n_epochs, learning_rate, batch_size):
             time.time() - training_start_time))
         epoch_accuracy.append(epoch_predictions / len(total_predicted))
         epoch_loss.append(total_running_loss / c)
+        scheduler.step()
 
     print('Finished Training')
 

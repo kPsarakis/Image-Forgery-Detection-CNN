@@ -1,3 +1,5 @@
+import os
+
 from src.feature_fusion.feature_fusion import get_yi, get_y_hat
 
 import numpy as np
@@ -25,7 +27,7 @@ def create_feature_vectors(model, tampered_path, authentic_path, output_name):
         image = images[image_name]['mat']
         label = images[image_name]['label']
 
-        df = pd.concat([df, pd.concat([pd.DataFrame([image_name.split("\\")[1], str(label)]),
+        df = pd.concat([df, pd.concat([pd.DataFrame([image_name.split(os.sep)[-1], str(label)]),
                                        pd.DataFrame(get_patch_yi(model, image))])], axis=1, sort=False)
         c += 1
 
@@ -57,9 +59,7 @@ def create_feature_vectors_nc(model, input_path, output_name):
 
     # save the feature vector to csv
     final_df = df.T
-    print(get_df_column_names())
     final_df.columns = get_df_column_names()
-
     final_df.to_csv(output_name, index=False)  # csv type [im_name][label][f1,f2,...,fK]
 
 

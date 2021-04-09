@@ -34,13 +34,19 @@ def delete_prev_images(dir_name):
             print(e)
 
 
-def check_and_reshape(image, mask):
+def check_and_reshape(image, input_mask):
     """
     Gets an image reshapes it and returns it with its mask.
     :param image: The image
-    :param mask: The mask of the image
+    :param input_mask: The mask of the image
     :returns: the image and its mask
     """
+    try:
+        mask_x, mask_y = input_mask.shape
+        mask = np.empty((mask_x, mask_y, 1))
+        mask[:, :, 1] = input_mask
+    except ValueError:
+        mask = input_mask
     if image.shape == mask.shape:
         return image, mask
     elif image.shape[0] == mask.shape[1] and image.shape[1] == mask.shape[0]:
@@ -119,6 +125,10 @@ def create_dirs(output_path):
             os.makedirs(output_path + '/tampered')
 
 
+class NotSupportedDataset(Exception):
+    pass
+
+
 def find_tampered_patches(image, im_name, mask, window_shape, stride, dataset, patches_per_image):
     """
     Gets an image reshapes it and returns it with its mask.
@@ -139,7 +149,7 @@ def find_tampered_patches(image, im_name, mask, window_shape, stride, dataset, p
     elif dataset == 'nc16':
         mask_patches = view_as_windows(mask, (128, 128), step=stride)
     else:
-        raise Exception('The datasets supported are casia2 and nc16')
+        raise NotSupportedDataset('The datasets supported are casia2 and nc16')
 
     tampered_patches = []
     # find tampered patches

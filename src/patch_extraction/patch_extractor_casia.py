@@ -4,8 +4,8 @@ import os
 import matplotlib.pyplot as plt
 import warnings
 
-from patch_extraction.extraction_utils import check_and_reshape, extract_all_patches, create_dirs, save_patches, \
-    find_tampered_patches
+from .extraction_utils import check_and_reshape, extract_all_patches, create_dirs, save_patches, find_tampered_patches
+from .mask_extraction import extract_masks
 
 warnings.filterwarnings('ignore')
 # from src.patch_extraction.mask_extraction import extract_masks
@@ -35,7 +35,7 @@ class PatchExtractorCASIA:
         self.background_index = [13, 21]
         au_index = [3, 6, 7, 12]
         au_pic_list = glob(self.input_path + os.sep + 'Au' + os.sep + '*')
-        self.Au_pic_dict = {
+        self.au_pic_dict = {
             au_pic.split(os.sep)[-1][au_index[0]:au_index[1]] + au_pic.split(os.sep)[-1][au_index[2]:au_index[3]]:
                 au_pic for au_pic
             in au_pic_list}
@@ -48,11 +48,11 @@ class PatchExtractorCASIA:
         :param rep_num: Number of repetitions being done(just for the patch name)
         """
         sp_name = sp_pic.split('/')[-1][self.background_index[0]:self.background_index[1]]
-        if sp_name in self.Au_pic_dict.keys():
-            au_name = self.Au_pic_dict[sp_name].split(os.sep)[-1].split('.')[0]
+        if sp_name in self.au_pic_dict.keys():
+            au_name = self.au_pic_dict[sp_name].split(os.sep)[-1].split('.')[0]
             # define window size
             window_shape = (128, 128, 3)
-            au_pic = self.Au_pic_dict[sp_name]
+            au_pic = self.au_pic_dict[sp_name]
             au_image = plt.imread(au_pic)
             # extract all patches
             extract_all_patches(au_image, window_shape, self.stride, num_of_patches, self.rotations, self.output_path,
@@ -92,7 +92,7 @@ class PatchExtractorCASIA:
                 image = io.imread(tp_dir + f)
                 im_name = f.split(os.sep)[-1].split('.')[0]
                 # read mask
-                mask = io.imread('patch_extraction/masks/' + im_name + '_gt.png')
+                mask = io.imread(self.input_path + '/masks/' + im_name + '_gt.png')
                 image, mask = check_and_reshape(image, mask)
 
                 # extract patches from images and masks
