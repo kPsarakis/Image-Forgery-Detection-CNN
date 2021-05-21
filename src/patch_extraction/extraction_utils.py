@@ -43,8 +43,10 @@ def check_and_reshape(image, input_mask):
     """
     try:
         mask_x, mask_y = input_mask.shape
-        mask = np.empty((mask_x, mask_y, 1))
+        mask = np.empty((mask_x, mask_y, 3))
+        mask[:, :, 0] = input_mask
         mask[:, :, 1] = input_mask
+        mask[:, :, 2] = input_mask
     except ValueError:
         mask = input_mask
     if image.shape == mask.shape:
