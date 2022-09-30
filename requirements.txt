@@ -1,6 +1,6 @@
 torch==1.8.1
 torchvision==0.9.1
-joblib==1.0.0
+joblib==1.2.0
 scikit-image==0.18.1
 opencv-python==4.5.1.48
 cycler==0.10.0
