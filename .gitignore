@@ -8,3 +8,4 @@ src/cnn/__pycache__/cnn_implement.cpython-37.pyc
 */.idea
 data/CASIA2
 data/NC16
+.DS_Store
